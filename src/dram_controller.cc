@@ -225,13 +225,17 @@ void MEMORY_CONTROLLER::schedule(PACKET_QUEUE *queue)
             LATENCY = tRP + tRCD + tCAS;
 
 #ifdef ENCLAVE
+cout << "helo" << endl;
+    #if MEMORY_ENCRYPTION_ENGINE
         // add encryption and decryption latency
         if (queue->entry[oldest_index].enclave_id != NUM_CPUS) {
+            cout << "hi" << endl;
             if (queue->is_WQ) 
                 LATENCY += ENCLAVE_LLC_MISS_LATENCY;
             else
                 LATENCY += ENCLAVE_LLC_MISS_LATENCY;
         }
+    #endif
 #endif
 
 

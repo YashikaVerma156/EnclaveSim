@@ -6,7 +6,7 @@ n_sim=50
 
 TRACE_DIR=~/DPC-traces
 
-binary=(bimodal-no-no-no-no-lru-enclave-off-off-1core)
+binary=(bimodal-no-no-no-no-lru-enclave-on-1core)
 
 
 traces=(623.xalancbmk_s-10B.champsimtrace.xz 605.mcf_s-994B.champsimtrace.xz 602.gcc_s-2226B.champsimtrace.xz
@@ -17,7 +17,7 @@ mkdir -p results_${num_cores}core_${n_warm}_${n_sim}_enclave
 
 # 3 mixes
 
-for ((j=0; j<3; j++))
+for ((j=0; j<1; j++))
 do 	
 
 	k=0
@@ -35,7 +35,7 @@ done
 
 # 5 mixes
 
-for ((j=0; j<5; j++))
+for ((j=0; j<0; j++))
 do 	
 
 	k=0

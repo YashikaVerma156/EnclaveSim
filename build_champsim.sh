@@ -6,7 +6,7 @@ function log2 {
     echo $x
 }
 
-if [ "$#" -ne 10 ]; then
+if [ "$#" -ne 9 ]; then
     echo "Illegal number of parameters"
     echo "Usage: ./build_champsim.sh [branch_pred] [l1d_pref] [l2c_pref] [llc_pref] [llc_repl] [num_core]"
     exit 1
@@ -20,9 +20,8 @@ L2C_PREFETCHER=$4       # prefetcher/*.l2c_pref
 LLC_PREFETCHER=$5       # prefetcher/*.llc_pref
 LLC_REPLACEMENT=$6      # replacement/*.llc_repl
 CONFIG=$7               # enclave or baseline
-CACHE_PARTITIONING=$8   # on/off
-MSHR_PARTITIONING=$9    # on/off
-NUM_CORE=${10}          # tested up to 8-core system
+MEMORY_ENCRYPTION_ENGINE=$8   # on/off
+NUM_CORE=${9}          # tested up to 8-core system
 
 ############## Some useful macros ###############
 BOLD=$(tput bold)
@@ -122,13 +121,10 @@ else
 	sed -i.bak 's/\<CONFIG\>/ENCLAVE/g' inc/champsim.h	    
 fi
 
-if [ "$CACHE_PARTITIONING" = "on" ]; then
-    sed -i.bak 's/\<CACHE_PARTITIONING 0\>/CACHE_PARTITIONING 1/g' inc/champsim.h
+if [ "$MEMORY_ENCRYPTION_ENGINE" = "on" ]; then
+    sed -i.bak 's/\<MEMORY_ENCRYPTION_ENGINE 0\>/MEMORY_ENCRYPTION_ENGINE 1/g' inc/champsim.h
 fi
 
-if [ "$MSHR_PARTITIONING" = "on" ]; then
-    sed -i.bak 's/\<MSHR_PARTITIONING 0\>/MSHR_PARTITIONING 1/g' inc/champsim.h
-fi
 
 # Change prefetchers and replacement policy
 cp branch/${BRANCH}.bpred branch/branch_predictor.cc
@@ -152,7 +148,6 @@ if [ ! -f bin/champsim ]; then
     exit 1
 fi
 
-
 echo "${BOLD}ChampSim is successfully built"
 echo "Branch Predictor: ${BRANCH}"
 echo "L1I Prefetcher: ${L1I_PREFETCHER}"
@@ -161,14 +156,12 @@ echo "L2C Prefetcher: ${L2C_PREFETCHER}"
 echo "LLC Prefetcher: ${LLC_PREFETCHER}"
 echo "LLC Replacement: ${LLC_REPLACEMENT}"
 echo "CONFIG:  ${CONFIG}"
-echo "CACHE_PARTITIONING: ${CACHE_PARTITIONING}"
-echo "MSHR_PARTITIONING: ${MSHR_PARTITIONING}"
+echo "MEMORY_ENCRYPTION_ENGINE: ${MEMORY_ENCRYPTION_ENGINE}"
 echo "Cores: ${NUM_CORE}"
-BINARY_NAME="${BRANCH}-${L1I_PREFETCHER}-${L1D_PREFETCHER}-${L2C_PREFETCHER}-${LLC_PREFETCHER}-${LLC_REPLACEMENT}-${CONFIG}-${CACHE_PARTITIONING}-${MSHR_PARTITIONING}-${NUM_CORE}core"
+BINARY_NAME="${BRANCH}-${L1I_PREFETCHER}-${L1D_PREFETCHER}-${L2C_PREFETCHER}-${LLC_PREFETCHER}-${LLC_REPLACEMENT}-${CONFIG}-${MEMORY_ENCRYPTION_ENGINE}-${NUM_CORE}core"
 echo "Binary: bin/${BINARY_NAME}"
 echo ""
 mv bin/champsim bin/${BINARY_NAME}
-
 
 # Restore to the default configuration
 sed -i.bak 's/\<NUM_CPUS '${NUM_CORE}'\>/NUM_CPUS 1/g' inc/champsim.h
@@ -181,12 +174,9 @@ else
 	sed -i.bak 's/\<ENCLAVE\>/CONFIG/g' inc/champsim.h	    
 fi
 
-if [ "$CACHE_PARTITIONING" = "on" ]; then
-    sed -i.bak 's/\<CACHE_PARTITIONING 1\>/CACHE_PARTITIONING 0/g' inc/champsim.h
-fi
 
-if [ "$MSHR_PARTITIONING" = "on" ]; then
-    sed -i.bak 's/\<MSHR_PARTITIONING 1\>/MSHR_PARTITIONING 0/g' inc/champsim.h
+if [ "$MEMORY_ENCRYPTION_ENGINE" = "on" ]; then
+    sed -i.bak 's/\<MEMORY_ENCRYPTION_ENGINE 1\>/MEMORY_ENCRYPTION_ENGINE 0/g' inc/champsim.h
 fi
 
 cp branch/bimodal.bpred branch/branch_predictor.cc

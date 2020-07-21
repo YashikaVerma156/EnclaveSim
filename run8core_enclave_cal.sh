@@ -6,7 +6,7 @@ n_sim=50
 
 TRACE_DIR=~/DPC-traces
 
-binary=(bimodal-no-no-no-no-lru-enclave-off-off-8core)
+binary=(bimodal-no-no-no-no-lru-enclave-on-8core)
 
 traces=(623.xalancbmk_s-10B.champsimtrace.xz 605.mcf_s-994B.champsimtrace.xz 605.mcf_s-1644B.champsimtrace.xz 602.gcc_s-2226B.champsimtrace.xz
 	641.leela_s-1052B.champsimtrace.xz 648.exchange2_s-72B.champsimtrace.xz

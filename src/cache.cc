@@ -74,10 +74,6 @@ void CACHE::handle_fill()
                 total_miss_latency += current_miss_latency;
             }
 
-#if MSHR_PARTITIONING
-            if (cache_type == IS_LLC)
-                MSHR.core_occupancy[MSHR.entry[mshr_index].cpu]--;
-#endif
             MSHR.remove_queue(&MSHR.entry[mshr_index]);
             MSHR.num_returned--;
             update_fill_cycle();
@@ -226,10 +222,7 @@ void CACHE::handle_fill()
                 total_miss_latency += current_miss_latency;
             }
 
-#if MSHR_PARTITIONING
-            if (cache_type == IS_LLC)
-                MSHR.core_occupancy[MSHR.entry[mshr_index].cpu]--;
-#endif
+
             MSHR.remove_queue(&MSHR.entry[mshr_index]);
             MSHR.num_returned--;
 
@@ -320,12 +313,8 @@ void CACHE::handle_writeback()
                 int mshr_index = check_mshr(&WQ.entry[index]);
 
                 bool is_mshr_vacant;
-#if MSHR_PARTITIONING
-                is_mshr_vacant = ((cache_type == IS_LLC && MSHR.core_occupancy[WQ.entry[index].cpu] < 64) || (cache_type != IS_LLC && MSHR.occupancy < MSHR_SIZE));
-#endif
-#if !(MSHR_PARTITIONING)
+
                 is_mshr_vacant = MSHR.occupancy < MSHR_SIZE;
-#endif
                 if (mshr_index == -2)
                 {
                     // this is a data/instruction collision in the MSHR, so we have to wait before we can allocate this miss
@@ -361,12 +350,9 @@ void CACHE::handle_writeback()
                 else
                 {
                     bool is_mshr_full;
-#if MSHR_PARTITIONING
-                    is_mshr_full = ((cache_type == IS_LLC && MSHR.core_occupancy[WQ.entry[index].cpu] == 64) || (cache_type != IS_LLC && MSHR.occupancy == MSHR_SIZE));
-#endif
-#if !(MSHR_PARTITIONING)
+
                     is_mshr_full = MSHR.occupancy == MSHR_SIZE;
-#endif
+                    
                     if (mshr_index == -1 && is_mshr_full)
                     { // not enough MSHR resource
 
@@ -670,12 +656,8 @@ void CACHE::handle_read()
                 int mshr_index = check_mshr(&RQ.entry[index]);
 
                 bool is_mshr_vacant;
-#if MSHR_PARTITIONING
-                is_mshr_vacant = ((cache_type == IS_LLC && MSHR.core_occupancy[RQ.entry[index].cpu] < 64) || (cache_type != IS_LLC && MSHR.occupancy < MSHR_SIZE));
-#endif
-#if !(MSHR_PARTITIONING)
+
                 is_mshr_vacant = MSHR.occupancy < MSHR_SIZE;
-#endif
 
                 if (mshr_index == -2)
                 {
@@ -735,12 +717,8 @@ void CACHE::handle_read()
                 {
 
                     bool is_mshr_full;
-#if MSHR_PARTITIONING
-                    is_mshr_full = ((cache_type == IS_LLC && MSHR.core_occupancy[RQ.entry[index].cpu] == 64) || (cache_type != IS_LLC && MSHR.occupancy == MSHR_SIZE));
-#endif
-#if !(MSHR_PARTITIONING)
+
                     is_mshr_full = (MSHR.occupancy == MSHR_SIZE);
-#endif
                     if ((mshr_index == -1) && (is_mshr_full))
                     { // not enough MSHR resource
 
@@ -966,12 +944,8 @@ void CACHE::handle_prefetch()
                 int mshr_index = check_mshr(&PQ.entry[index]);
 
                 bool is_mshr_vacant;
-#if MSHR_PARTITIONING
-                is_mshr_vacant = ((cache_type == IS_LLC && MSHR.core_occupancy[PQ.entry[index].cpu] < 64) || (cache_type != IS_LLC && MSHR.occupancy < MSHR_SIZE));
-#endif
-#if !(MSHR_PARTITIONING)
+
                 is_mshr_vacant = (MSHR.occupancy < MSHR_SIZE);
-#endif
 
                 if (mshr_index == -2)
                 {
@@ -1047,12 +1021,8 @@ void CACHE::handle_prefetch()
                 {
 
                     bool is_mshr_full;
-#if MSHR_PARTITIONING
-                    is_mshr_full = ((cache_type == IS_LLC && MSHR.core_occupancy[PQ.entry[index].cpu] == 64) || (cache_type != IS_LLC && MSHR.occupancy == MSHR_SIZE));
-#endif
-#if !(MSHR_PARTITIONING)
+
                     is_mshr_full = MSHR.occupancy == MSHR_SIZE;
-#endif
                     if ((mshr_index == -1) && (is_mshr_full))
                     { // not enough MSHR resource
 
@@ -1128,33 +1098,7 @@ void CACHE::operate()
 
 uint32_t CACHE::get_set(uint64_t address, uint32_t cpu)
 {
-
-#if CACHE_PARTITIONING
-
-    if (cache_type == IS_LLC)
-    {
-        uint32_t set_number = (uint32_t)(cpu << (lg2(NUM_SET) - lg2(NUM_CPUS))) | (address & ((1 << (lg2(NUM_SET) - lg2(NUM_CPUS))) - 1));
-
-        // To check cache sets are partitioned or not.
-
-        pair<uint32_t, uint32_t> set_range;
-        uint32_t set_per_cpu = (NUM_SET / NUM_CPUS);
-        set_range.first = cpu * set_per_cpu;
-        set_range.second = set_range.first + set_per_cpu;
-        assert(set_number >= set_range.first && set_number < set_range.second);
-
-        return set_number;
-    }
-    else
-        return (uint32_t)(address & ((1 << lg2(NUM_SET)) - 1));
-
-#endif
-
-#if !(CACHE_PARTITIONING)
     return (uint32_t)(address & ((1 << lg2(NUM_SET)) - 1));
-#endif
-
-    return 0;
 }
 
 uint32_t CACHE::get_way(uint64_t address, uint32_t set)
@@ -1779,60 +1723,7 @@ void CACHE::add_mshr(PACKET *packet)
     uint32_t index = 0;
 
     packet->cycle_enqueued = current_core_cycle[packet->cpu];
-
-#if MSHR_PARTITIONING
-
-    if (cache_type == IS_LLC)
-    {
-
-        // search mshr
-        uint32_t cpu_index = (packet->cpu) * 64;
-
-        for (index = cpu_index; index < cpu_index + 64; index++)
-        {
-            if (MSHR.entry[index].address == 0)
-            {
-
-                MSHR.entry[index] = *packet;
-                MSHR.entry[index].returned = INFLIGHT;
-                MSHR.occupancy++;
-                MSHR.core_occupancy[packet->cpu]++;
-
-                DP(if (warmup_complete[packet->cpu]) {
-                cout << "[" << NAME << "_MSHR] " << __func__ << " instr_id: " << packet->instr_id;
-                cout << " address: " << hex << packet->address << " full_addr: " << packet->full_addr << dec;
-                cout << " index: " << index << " occupancy: " << MSHR.occupancy << endl; });
-
-                break;
-            }
-        }
-    }
-    else
-    {
-
-        // search mshr
-        for (index = 0; index < MSHR_SIZE; index++)
-        {
-            if (MSHR.entry[index].address == 0)
-            {
-
-                MSHR.entry[index] = *packet;
-                MSHR.entry[index].returned = INFLIGHT;
-                MSHR.occupancy++;
-
-                DP(if (warmup_complete[packet->cpu]) {
-                cout << "[" << NAME << "_MSHR] " << __func__ << " instr_id: " << packet->instr_id;
-                cout << " address: " << hex << packet->address << " full_addr: " << packet->full_addr << dec;
-                cout << " index: " << index << " occupancy: " << MSHR.occupancy << endl; });
-
-                break;
-            }
-        }
-    }
-
-#endif
-
-#if !(MSHR_PARTITIONING)
+    
     // search mshr
     for (index = 0; index < MSHR_SIZE; index++)
     {
@@ -1851,7 +1742,7 @@ void CACHE::add_mshr(PACKET *packet)
             break;
         }
     }
-#endif
+
 }
 
 uint32_t CACHE::get_occupancy(uint8_t queue_type, uint64_t address)

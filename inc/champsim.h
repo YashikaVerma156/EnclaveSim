@@ -27,8 +27,7 @@
 #define DRC_BYPASS
 #define NO_CRC2_COMPILE
 #define CONFIG
-#define CACHE_PARTITIONING 0
-#define MSHR_PARTITIONING 0
+#define MEMORY_ENCRYPTION_ENGINE 0
 
 #ifdef DEBUG_PRINT
 #define DP(x) x

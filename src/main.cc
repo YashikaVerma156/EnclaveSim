@@ -1639,20 +1639,13 @@ int main(int argc, char **argv)
          << "NON-ENCLAVE Pagess: " << NON_ENCLAVE_PAGES << endl;
 #endif
 
-#if CACHE_PARTITIONING
-    cout << "CACHE_PARTITIONING: ON" << endl;
+#if MEMORY_ENCRYPTION_ENGINE
+    cout << "MEMORY_ENCRYPTION_ENGINE: ON" << endl;
 #endif
 
-#if !(CACHE_PARTITIONING)
-    cout << "CACHE_PARTITIONING: OFF" << endl;
-#endif
 
-#if MSHR_PARTITIONING
-    cout << "MSHR_PARTITIONING: ON" << endl;
-#endif
-
-#if !(MSHR_PARTITIONING)
-    cout << "MSHR_PARTITIONING: OFF" << endl;
+#if !(MEMORY_ENCRYPTION_ENGINE)
+    cout << "MEMORY_ENCRYPTION_ENGINE: OFF" << endl;
 #endif
 
     // end consequence of knobs
