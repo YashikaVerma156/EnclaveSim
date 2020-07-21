@@ -13,14 +13,14 @@ $ ./build.sh lru enclave 8
 
 # Run simulation [To re-generate EnclaveSim results]
 
-* To get single-core results 
+* For single-core results 
 
 ```
 ./run1core_baseline_cal.sh
 ./run1core_enclave_cal.sh
 
 ```
-* To get multi-core results 
+* For multi-core results 
 
 ```
 ./run8core_baseline_cal.sh
