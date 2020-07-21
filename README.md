@@ -7,7 +7,7 @@
 * How to build it?
 
 ```
-$ ./build.sh ${replacement_policy} ${configuration} ${memory_encryption_engine} ${num_core}
+$ ./build.sh ${replacement_policy} ${configuration} ${encryption_operation} ${num_core}
 $ ./build.sh lru enclave off 8
 ```
 
