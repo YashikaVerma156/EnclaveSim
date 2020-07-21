@@ -32,7 +32,7 @@ class input_instr {
 
     // instruction pointer or PC (Program Counter)
     uint64_t ip;
-    uint64_t trusted_id;
+    // uint64_t trusted_id;
 
     // branch info
     uint8_t is_branch;
@@ -48,7 +48,7 @@ class input_instr {
         ip = 0;
         is_branch = 0;
         branch_taken = 0;
-        trusted_id = 0;
+        // trusted_id = 0;
 
         for (uint32_t i=0; i<NUM_INSTR_SOURCES; i++) {
             source_registers[i] = 0;
@@ -68,7 +68,7 @@ class cloudsuite_instr {
 
     // instruction pointer or PC (Program Counter)
     uint64_t ip;
-    uint64_t trusted_id;
+    // uint64_t trusted_id;
 
     // branch info
     uint8_t is_branch;
@@ -86,7 +86,7 @@ class cloudsuite_instr {
         ip = 0;
         is_branch = 0;
         branch_taken = 0;
-        trusted_id = 0;
+        // trusted_id = 0;
 
         for (uint32_t i=0; i<NUM_INSTR_SOURCES; i++) {
             source_registers[i] = 0;

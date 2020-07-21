@@ -51,8 +51,6 @@ void O3_CPU::read_from_trace()
                 // copy the instruction into the performance model's instruction format
                 ooo_model_instr arch_instr;
 
-                cout << endl << "welcome: " << current_cloudsuite_instr.trusted_id << endl;
-
                 int num_reg_ops = 0, num_mem_ops = 0;
 
                 arch_instr.instr_id = instr_unique_id;
