@@ -1,6 +1,6 @@
 replacement_policy=${1}
 configuration=${2}
-memory_encryption_engine=${3}
-num_core=${3}
+encryption_operation=${3}
+num_core=${4}
 
-./build_champsim.sh bimodal no no no no ${replacement_policy} ${configuration} ${memory_encryption_engine} ${num_core}
+./build_champsim.sh bimodal no no no no ${replacement_policy} ${configuration} ${encryption_operation} ${num_core}

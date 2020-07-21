@@ -226,7 +226,7 @@ void MEMORY_CONTROLLER::schedule(PACKET_QUEUE *queue)
 
 #ifdef ENCLAVE
 cout << "helo" << endl;
-    #if MEMORY_ENCRYPTION_ENGINE
+    #if ENCRYPTION_OPERATION
         // add encryption and decryption latency
         if (queue->entry[oldest_index].enclave_id != NUM_CPUS) {
             cout << "hi" << endl;

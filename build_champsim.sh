@@ -20,7 +20,7 @@ L2C_PREFETCHER=$4       # prefetcher/*.l2c_pref
 LLC_PREFETCHER=$5       # prefetcher/*.llc_pref
 LLC_REPLACEMENT=$6      # replacement/*.llc_repl
 CONFIG=$7               # enclave or baseline
-MEMORY_ENCRYPTION_ENGINE=$8   # on/off
+ENCRYPTION_OPERATION=$8   # on/off
 NUM_CORE=${9}          # tested up to 8-core system
 
 ############## Some useful macros ###############
@@ -121,8 +121,8 @@ else
 	sed -i.bak 's/\<CONFIG\>/ENCLAVE/g' inc/champsim.h	    
 fi
 
-if [ "$MEMORY_ENCRYPTION_ENGINE" = "on" ]; then
-    sed -i.bak 's/\<MEMORY_ENCRYPTION_ENGINE 0\>/MEMORY_ENCRYPTION_ENGINE 1/g' inc/champsim.h
+if [ "$ENCRYPTION_OPERATION" = "on" ]; then
+    sed -i.bak 's/\<ENCRYPTION_OPERATION 0\>/ENCRYPTION_OPERATION 1/g' inc/champsim.h
 fi
 
 
@@ -156,9 +156,9 @@ echo "L2C Prefetcher: ${L2C_PREFETCHER}"
 echo "LLC Prefetcher: ${LLC_PREFETCHER}"
 echo "LLC Replacement: ${LLC_REPLACEMENT}"
 echo "CONFIG:  ${CONFIG}"
-echo "MEMORY_ENCRYPTION_ENGINE: ${MEMORY_ENCRYPTION_ENGINE}"
+echo "ENCRYPTION_OPERATION: ${ENCRYPTION_OPERATION}"
 echo "Cores: ${NUM_CORE}"
-BINARY_NAME="${BRANCH}-${L1I_PREFETCHER}-${L1D_PREFETCHER}-${L2C_PREFETCHER}-${LLC_PREFETCHER}-${LLC_REPLACEMENT}-${CONFIG}-${MEMORY_ENCRYPTION_ENGINE}-${NUM_CORE}core"
+BINARY_NAME="${BRANCH}-${L1I_PREFETCHER}-${L1D_PREFETCHER}-${L2C_PREFETCHER}-${LLC_PREFETCHER}-${LLC_REPLACEMENT}-${CONFIG}-${ENCRYPTION_OPERATION}-${NUM_CORE}core"
 echo "Binary: bin/${BINARY_NAME}"
 echo ""
 mv bin/champsim bin/${BINARY_NAME}
@@ -175,8 +175,8 @@ else
 fi
 
 
-if [ "$MEMORY_ENCRYPTION_ENGINE" = "on" ]; then
-    sed -i.bak 's/\<MEMORY_ENCRYPTION_ENGINE 1\>/MEMORY_ENCRYPTION_ENGINE 0/g' inc/champsim.h
+if [ "$ENCRYPTION_OPERATION" = "on" ]; then
+    sed -i.bak 's/\<ENCRYPTION_OPERATION 1\>/ENCRYPTION_OPERATION 0/g' inc/champsim.h
 fi
 
 cp branch/bimodal.bpred branch/branch_predictor.cc

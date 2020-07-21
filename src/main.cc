@@ -1639,13 +1639,13 @@ int main(int argc, char **argv)
          << "NON-ENCLAVE Pagess: " << NON_ENCLAVE_PAGES << endl;
 #endif
 
-#if MEMORY_ENCRYPTION_ENGINE
-    cout << "MEMORY_ENCRYPTION_ENGINE: ON" << endl;
+#if ENCRYPTION_OPERATION
+    cout << "ENCRYPTION_OPERATION: ON" << endl;
 #endif
 
 
-#if !(MEMORY_ENCRYPTION_ENGINE)
-    cout << "MEMORY_ENCRYPTION_ENGINE: OFF" << endl;
+#if !(ENCRYPTION_OPERATION)
+    cout << "ENCRYPTION_OPERATION: OFF" << endl;
 #endif
 
     // end consequence of knobs

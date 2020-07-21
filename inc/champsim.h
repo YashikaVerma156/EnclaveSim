@@ -27,7 +27,7 @@
 #define DRC_BYPASS
 #define NO_CRC2_COMPILE
 #define CONFIG
-#define MEMORY_ENCRYPTION_ENGINE 0
+#define ENCRYPTION_OPERATION 0
 
 #ifdef DEBUG_PRINT
 #define DP(x) x
