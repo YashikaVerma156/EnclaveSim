@@ -7,8 +7,8 @@
 * How to build it?
 
 ```
-$ ./build.sh ${replacement-policy} ${configuration} ${num-core}
-$ ./build.sh lru enclave 8
+$ ./build.sh ${replacement_policy} ${configuration} ${encryption_operation} ${num_core}
+$ ./build.sh lru enclave off 8
 ```
 
 # Run simulation [To re-generate EnclaveSim results]
