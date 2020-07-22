@@ -25,7 +25,7 @@ $ ./run1core_enclave_cal.sh
 $ ./run8core_baseline_cal.sh
 $ ./run8core_enclave_cal.sh
 ```
-# PIN Tool
+# PIN Tool [Supports Enclave-aware trace generation]
  
 * Download: https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.13-98189-g60a6ef199-gcc-linux.tar.gz
 * Installation:
