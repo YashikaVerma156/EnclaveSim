@@ -50,5 +50,5 @@ $ ./run8core_enclave_cal.sh
 
 ```
 $ pin -t ${share_object_tracerfile_path} -- ${application_path} > /dev/null
-$ pin -t /home/node68/dixit/EnclaveSim/tracer/obj-intel64/champsim_tracer.so -- ../example/example1 >/dev/null
+$ pin -t /home/dixit/EnclaveSim/tracer/obj-intel64/champsim_tracer.so -- ../example/example1 >/dev/null
 ```
