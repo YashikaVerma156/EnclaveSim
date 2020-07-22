@@ -18,7 +18,6 @@ $ ./build.sh lru enclave off 8
 ```
 $ ./run1core_baseline_cal.sh
 $ ./run1core_enclave_cal.sh
-
 ```
 * For multi-core results 
 
@@ -35,8 +34,8 @@ $ ./run8core_enclave_cal.sh
     # Add below line at the end of .bashrc file 
     export PATH=$PATH:path/to/pin-3.2-81205-gcc-linux
     ```
-   * To build tracer
-    ```
-    $ cd path/to/EnclaveSim/Tracer
-    $ ./make_tracer.sh 
-    ```
+* To build tracer
+ ```
+  $ cd path/to/EnclaveSim/Tracer
+  $ ./make_tracer.sh 
+ ```
