@@ -10,3 +10,7 @@ inc/champsim.h.bak
 bin/
 obj/
 results*
+example/example1
+tracer/obj-intel64/
+tracer/champsim*
+pin.log
