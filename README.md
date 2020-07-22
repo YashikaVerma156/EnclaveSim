@@ -36,7 +36,7 @@ $ ./run8core_enclave_cal.sh
 
     ```
     # Add below line at the end of .bashrc file 
-    export PATH=$PATH:path/to/pin-3.2-81205-gcc-linux
+    export PATH=$PATH:path/to/pin-3.13-98189-g60a6ef199-gcc-linux
     ```
 
 * To build tracer
