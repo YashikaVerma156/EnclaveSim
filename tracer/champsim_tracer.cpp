@@ -13,7 +13,7 @@ using namespace std;
 typedef struct trace_instr_format {
 
     unsigned long long int ip;  // instruction pointer (program counter) value
-    bool trusted_code;
+    bool is_trusted_code; // is this trusted code intructions
 
     unsigned char is_branch;    // is this branch
     unsigned char branch_taken; // if so, is this taken
@@ -33,7 +33,7 @@ ofstream outFile;
 
 bool output_file_closed = false;
 bool tracing_on = false;
-bool trusted_mode = false;
+bool enclave_mode = false;
 
 UINT64 total_instructions_executed=0;
 UINT64 trusted_instructions_executed=0;
@@ -63,8 +63,8 @@ INT32 Usage()
         << "Specify the number of instructions to trace with -t" << endl << endl;
 
     cerr << KNOB_BASE::StringKnobSummary() << endl;
-
     return -1;
+
 }
 
 void EndInstruction()
@@ -72,10 +72,8 @@ void EndInstruction()
     if(instrCount > KnobSkipInstructions.Value()) {
         tracing_on = true;
         if(instrCount <= (KnobTraceInstructions.Value()+KnobSkipInstructions.Value())) {
-            
+            // write to the trace file
             fwrite(&curr_instr, sizeof(trace_instr_format_t), 1, out);
-            
-            ;
         }
         else {
             tracing_on = false;
@@ -84,7 +82,6 @@ void EndInstruction()
                 fclose(out);
                 output_file_closed = true;
             }
-
             exit(0);
         }
     }
@@ -213,10 +210,11 @@ void BeginInstruction(VOID *ip, ADDRINT InsAdd)
         tracing_on = true;
 
         if(instrCount > (KnobTraceInstructions.Value()+KnobSkipInstructions.Value())) {
-            
+
             outFile << "Total Instructions Executed: "<< total_instructions_executed << endl;
             outFile << "Trusted Instructions Executed: "<< trusted_instructions_executed << endl;
             outFile << "Untrusted Instructions Executed: "<< untrusted_instructions_executed << endl;   
+
         }
         
     }
@@ -225,17 +223,17 @@ void BeginInstruction(VOID *ip, ADDRINT InsAdd)
         return;
 
     if (first_trusted_address == InsAdd) 
-        trusted_mode = true;
+        enclave_mode = true;
     else if (last_trusted_address == InsAdd) 
-        trusted_mode = false;
+        enclave_mode = false;
               
-    if (trusted_mode) {
+    if (enclave_mode) {
         trusted_instructions_executed++;
-        curr_instr.trusted_code = true;
+        curr_instr.is_trusted_code = true;
     }
     else {
         untrusted_instructions_executed++;
-        curr_instr.trusted_code = false;
+        curr_instr.is_trusted_code = false;
     }
     total_instructions_executed++;
 
@@ -265,11 +263,10 @@ bool search_substring(string sub_string, string complete_string) {
    return false;
 }
 
-
 // Is called for every instruction and instruments reads and writes
 VOID Instruction(INS ins, VOID *v)
 {
-    string rtnName = "Untrusted_Function";
+    string rtnName;
     RTN rtn = INS_Rtn(ins);
     if (RTN_Valid (rtn)) {
         IMG img = SEC_Img(RTN_Sec(rtn));
@@ -345,6 +342,22 @@ VOID Fini(INT32 code, VOID *v)
     }
 }
 
+string executable_filename(string filepath) {
+    string filename;
+    reverse(filepath.begin(), filepath.end());
+    for (long unsigned int i=0;i<filepath.length();i++) {
+        if (filepath[i]!='/') {
+            filename.push_back(filepath[i]);
+        }
+        else {
+            reverse(filename.begin(), filename.end());
+            return filename;
+        }
+    } 
+    reverse(filename.begin(), filename.end());
+    return filepath;
+}
+
 int main(int argc, char *argv[])
 {
         
@@ -353,11 +366,15 @@ int main(int argc, char *argv[])
     if( PIN_Init(argc,argv))
         return Usage();
 
-    outFile.open("champsim.out");
+    string filename =  executable_filename(argv[argc-1]);
 
-    const char* fileName = KnobOutputFile.Value().c_str();
+    // open stream file for output
+    const char* streamfile = (filename+".out").c_str();
+    outFile.open(streamfile);
 
-    out = fopen(fileName, "ar");
+    // open trace file 
+    const char* tracefile = (filename+".trace").c_str();;
+    out = fopen(tracefile, "ar");
 
     if (!out) 
     {
