@@ -39,6 +39,9 @@ UINT64 total_instructions_executed=0;
 UINT64 trusted_instructions_executed=0;
 UINT64 untrusted_instructions_executed=0;
 
+UINT64 trusted_function_called=0;
+UINT64 untrusted_function_called=0;
+
 UINT64 first_trusted_address=0;
 UINT64 last_trusted_address=0; 
 
@@ -74,6 +77,7 @@ void EndInstruction()
         if(instrCount <= (KnobTraceInstructions.Value()+KnobSkipInstructions.Value())) {
             // write to the trace file
             fwrite(&curr_instr, sizeof(trace_instr_format_t), 1, out);
+            ;
         }
         else {
             tracing_on = false;
@@ -211,9 +215,10 @@ void BeginInstruction(VOID *ip, ADDRINT InsAdd)
 
         if(instrCount > (KnobTraceInstructions.Value()+KnobSkipInstructions.Value())) {
 
-            outFile << "Total Instructions Executed: "<< total_instructions_executed << endl;
-            outFile << "Trusted Instructions Executed: "<< trusted_instructions_executed << endl;
-            outFile << "Untrusted Instructions Executed: "<< untrusted_instructions_executed << endl;   
+            outFile << "Total Instructions Executed: "<< total_instructions_executed << " (" << float(100.0*total_instructions_executed/total_instructions_executed) <<"%)" << endl;
+            outFile << "Trusted Instructions Executed: "<< trusted_instructions_executed << " (" << float(100.0*trusted_instructions_executed/total_instructions_executed) <<"%)" << endl;
+            outFile << "Untrusted Instructions Executed: "<< untrusted_instructions_executed << " ("<<float(100.0*untrusted_instructions_executed/total_instructions_executed) <<"%)" << endl;   
+            // outFile << "Trusted function called: " << trusted_function_called << " Untrusted function called: " << untrusted_function_called << endl;
 
         }
         
@@ -222,10 +227,15 @@ void BeginInstruction(VOID *ip, ADDRINT InsAdd)
     if(!tracing_on) 
         return;
 
-    if (first_trusted_address == InsAdd) 
+    if (first_trusted_address == InsAdd) {
+        trusted_function_called++;
         enclave_mode = true;
-    else if (last_trusted_address == InsAdd) 
+    } 
+        
+    else if (last_trusted_address == InsAdd) {
+        untrusted_function_called++;
         enclave_mode = false;
+    } 
               
     if (enclave_mode) {
         trusted_instructions_executed++;
@@ -271,7 +281,7 @@ VOID Instruction(INS ins, VOID *v)
     if (RTN_Valid (rtn)) {
         IMG img = SEC_Img(RTN_Sec(rtn));
         if (IMG_Valid(img)) {
-            if (search_substring("enable_trusted_code_execution",  RTN_Name(rtn)) && !first_trusted_address) {
+            if (search_substring("enable_trusted_code_execution",  RTN_Name(rtn))) {
                 first_trusted_address = INS_Address(ins);
             }
             if (search_substring("disable_trusted_code_execution",  RTN_Name(rtn))) {
@@ -329,10 +339,10 @@ VOID Instruction(INS ins, VOID *v)
 
 VOID Fini(INT32 code, VOID *v)
 { 
-
-    outFile << "Total Instructions Executed: "<< total_instructions_executed << endl;
-    outFile << "Trusted Instructions Executed: "<< trusted_instructions_executed << endl;
-    outFile << "Untrusted Instructions Executed: "<< untrusted_instructions_executed << endl;   
+    outFile << "Total Instructions Executed: "<< total_instructions_executed << " (" << float(100.0*total_instructions_executed/total_instructions_executed) <<"%)" << endl;
+    outFile << "Trusted Instructions Executed: "<< trusted_instructions_executed << " (" << float(100.0*trusted_instructions_executed/total_instructions_executed) <<"%)" << endl;
+    outFile << "Untrusted Instructions Executed: "<< untrusted_instructions_executed << " ("<<float(100.0*untrusted_instructions_executed/total_instructions_executed) <<"%)" << endl;      
+    // outFile << "Trusted function called: " << trusted_function_called << " Untrusted function called: " << untrusted_function_called << endl;
     
     // close the file if it hasn't already been closed
     if(!output_file_closed) 
