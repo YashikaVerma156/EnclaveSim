@@ -11,7 +11,8 @@ bin/
 obj/
 results*
 example/example1
+example/example2
+example/example3
 tracer/obj-intel64/
 tracer/*.trace
-tracer/*.out
 pin.log
