@@ -11,7 +11,10 @@ uint8_t warmup_complete[NUM_CPUS],
     all_simulation_complete = 0,
     MAX_INSTR_DESTINATIONS = NUM_INSTR_DESTINATIONS,
     knob_cloudsuite = 0,
-    knob_low_bandwidth = 0;
+    knob_low_bandwidth = 0,
+    is_enclave_aware_trace = 0;
+
+char * knob_enclave_aware_trace;
 
 uint64_t warmup_instructions = 1000000,
          simulation_instructions = 10000000,
@@ -712,8 +715,6 @@ void invalidate_linknode(unordered_map<uint64_t, pair<uint64_t, ListNode *>>::it
 
 void invalidate_page(unordered_map<uint64_t, pair<uint64_t, bool>>::iterator pr, uint32_t cpu)
 {
-
-
     uint64_t mapped_ppage = (pr->second).first;
     uint64_t vpage = pr->first;
 
@@ -785,15 +786,15 @@ void enclave_teardown(uint32_t cpu)
 
 }
 
+// initiaze the enclave
 void check_enclave_init(int cpu)
 {
-    // all enclaves of an application are already executed
+    // does every enclaves of the application get executed
     if (current_enclave[cpu] >= max_enclave[cpu]) return;
 
-    // processor is already in enclave mode
+    // is processor in enclave mode
     if (enclave_mode[cpu] == 1) return;
 
-    
     int enclave_number = current_enclave[cpu];
     int enclave_start_point = start_point[cpu][enclave_number];
     int enclave_end_point = end_point[cpu][enclave_number];
@@ -815,20 +816,20 @@ void check_enclave_init(int cpu)
     }
 }
 
+// exit the enclave
 void check_enclave_exit(int cpu)
 {
 
-    // all enclaves are already executed
+    // does every enclaves of the application get executed
     if (current_enclave[cpu] >= max_enclave[cpu]) return;
 
-    // processor is already in non-enclave mode 
+    // is processor in non-enclave mode
     if (enclave_mode[cpu] == 0) return; 
 
     int enclave_number = current_enclave[cpu];
     int enclave_start_point = start_point[cpu][enclave_number];
     int enclave_end_point = end_point[cpu][enclave_number];
     int current_instruction = ooo_cpu[cpu].num_retired - ooo_cpu[cpu].begin_sim_instr;
-    
 
     if (enclave_mode[cpu] == 1 and current_instruction >= enclave_end_point) {
 
@@ -845,6 +846,7 @@ void check_enclave_exit(int cpu)
     }
 }
 
+// trusted code executes in enclave-mode or not, and vice-versa?
 void init_exit_assert(int cpu){
 
     if (current_enclave[cpu] >= max_enclave[cpu]) return;
@@ -878,7 +880,7 @@ uint64_t lru_list_size() {
     return size;    
 }
 
-// it returns enclave-id corresponding to the physical address.
+// returns enclave-id corresponding to the physical address.
 uint8_t return_enclave_id(uint32_t cpu, uint64_t physical_address)
 {
     int ppage = physical_address >> LOG2_PAGE_SIZE;
@@ -1091,6 +1093,8 @@ uint64_t va_to_pa_baseline(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_
 
 uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t unique_vpage, uint8_t is_code)
 {
+
+    // sanity checks
 
     init_exit_assert(cpu);
 
@@ -1558,8 +1562,10 @@ int main(int argc, char **argv)
                 {"hide_heartbeat", no_argument, 0, 'h'},
                 {"cloudsuite", no_argument, 0, 'c'},
                 {"low_bandwidth", no_argument, 0, 'b'},
+                {"enclave_aware_trace", required_argument, 0, 'k'},
                 {"traces", no_argument, 0, 't'},
-                {0, 0, 0, 0}};
+                {0, 0, 0, 0}
+            };
 
         int option_index = 0;
 
@@ -1593,6 +1599,15 @@ int main(int argc, char **argv)
             break;
         case 'b':
             knob_low_bandwidth = 1;
+            break;
+        case 'k':
+            knob_enclave_aware_trace = optarg;        
+            if (strcmp(knob_enclave_aware_trace, "yes") == 0) {
+                is_enclave_aware_trace = 1;
+            }
+            else if (strcmp(knob_enclave_aware_trace, "no") == 0) {
+                is_enclave_aware_trace = 0;
+            }
             break;
         case 't':
             traces_encountered = 1;
@@ -1640,21 +1655,17 @@ int main(int argc, char **argv)
 #endif
 
 #if ENCRYPTION_OPERATION
-    cout << "ENCRYPTION_OPERATION: ON" << endl;
+    cout << "ENCRYPTION_OPERATION: ON" << endl << endl;
 #endif
-
 
 #if !(ENCRYPTION_OPERATION)
-    cout << "ENCRYPTION_OPERATION: OFF" << endl;
+    cout << "ENCRYPTION_OPERATION: OFF" << endl << endl;
 #endif
-
-    // end consequence of knobs
 
     // search through the argv for "-traces"
     int found_traces = 0;
     int count_traces = 0;
-    cout << endl;
-
+    
 #ifdef ENCLAVE
     bool is_trace = true;
     int cpu_id = 0;
@@ -1670,18 +1681,20 @@ int main(int argc, char **argv)
             printf("CPU %d runs %s\n", count_traces, argv[i]);
 #endif
 
-// This code is added just to support enclave execution with enclave checkpoint and its life-time.
 #ifdef ENCLAVE
-            if (is_trace)
+            if (is_trace or is_enclave_aware_trace)
             {
                 is_trace = false;
                 sprintf(trace_name, "%s", argv[i]);
+                if (is_enclave_aware_trace)
+                    cout << "CPU " << count_traces << " runs " << trace_name << " (Enclave Aware Trace: Yes)" << endl; 
+                else 
+                    cout << "CPU " << count_traces - 1 << " runs " << trace_name  << " (Enclave Aware Trace: No)" << endl;
             }
             else
             {
-
+                // read the enclave checkpoint and lifetime from input trace
                 is_trace = true;
-
                 int NUM_ENCLAVE = atoi(argv[i]);
 
                 for (int j = 0; j < NUM_ENCLAVE; j++)
@@ -1698,8 +1711,7 @@ int main(int argc, char **argv)
                     end_point[cpu_id].push_back(current_start_point + life_time);
                 }
 
-                cout << "CPU " << count_traces - 1 << " runs " << trace_name << endl
-                     << "Num of Enclaves: " << NUM_ENCLAVE << endl;
+                cout << "Num of Enclaves: " << NUM_ENCLAVE << endl;
 
                 for (int enclave_number = 0; enclave_number < NUM_ENCLAVE; enclave_number++)
                 {
@@ -1712,6 +1724,7 @@ int main(int argc, char **argv)
                 current_enclave[cpu_id] = 0;
                 enclave_mode[cpu_id] = 0;
 
+                // set various checkpoints
                 for (int j = 0; j < NUM_ENCLAVE; j++)
                 {
                     start_point[cpu_id][j] *= 1000000;
@@ -1719,6 +1732,7 @@ int main(int argc, char **argv)
                     lifetime[cpu_id][j] *= 1000000;
                 }
 
+                // initiliaze variable, that used in fruther deadlock checking
                 rob_head[cpu_id] = -1;
                 rob_tail[cpu_id] = -1;
                 flag[cpu_id] = false;
@@ -1797,6 +1811,7 @@ int main(int argc, char **argv)
         printf("\n*** Not enough traces for the configured number of cores ***\n\n");
         assert(0);
     }
+
 
     // end trace file setup
     // TODO: can we initialize these variables from the class constructor?
@@ -1896,7 +1911,6 @@ int main(int argc, char **argv)
         minor_fault[i] = 0;
         major_fault[i] = 0;
 
-// @champsim-enclave
 #ifdef ENCLAVE
         non_enclave_major_fault[i] = 0;
         non_enclave_minor_fault[i] = 0;
@@ -2002,16 +2016,14 @@ int main(int argc, char **argv)
             }
 
 #ifdef ENCLAVE
-
-
-
-            // Disable deadlock checking, when the enclave is in exiting phase.
+            // Disable deadlock checking, when an enclave is in exiting phase.
             if (is_deadlock_check_required[i] && ooo_cpu[i].ROB.entry[ooo_cpu[i].ROB.head].ip && (ooo_cpu[i].ROB.entry[ooo_cpu[i].ROB.head].event_cycle + DEADLOCK_CYCLE) <= current_core_cycle[i])
             {
                 cout << "Deadlock occurs! ON CPU :" << i << endl;
                 cout << "ROB head: " << ooo_cpu[i].ROB.head << "ROB tail: " << ooo_cpu[i].ROB.tail << " occupancy: " << ooo_cpu[i].ROB.occupancy << endl;
                 cout << "CPU: " << i << " Enclave Mode: " << enclave_mode[i] << " stall cycle value: " << stall_cycle[i] << " current core cycle value: " << current_core_cycle[i] << " Entry event cycle value:" << ooo_cpu[i].ROB.entry[ooo_cpu[i].ROB.head].event_cycle;
                 cout << " (Simulation time: " << elapsed_hour << " hr " << elapsed_minute << " min " << elapsed_second << " sec) " << endl;
+                // print states of different memory buffer/structure, when deadlock is occur 
                 print_rob(i);
                 print_cache_mshr(i);
                 print_block_status_in_cache(i);

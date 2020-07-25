@@ -16,3 +16,4 @@ example/example3
 tracer/obj-intel64/
 tracer/*.trace
 pin.log
+.vscode/*
