@@ -24,7 +24,7 @@ do
 	trace=${traces[$j]}
 	while [ $k -lt 8 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace} 1 10 25"
+	    mix1="$mix1 ${TRACE_DIR}/${trace} no 1 10 25"
 	    ((k++))
 	done
 
@@ -44,13 +44,13 @@ do
 	trace=${traces[$j]}
 	while [ $k -lt 4 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace} 1 25 5"
+	    mix1="$mix1 ${TRACE_DIR}/${trace} no 1 25 5"
 	    ((k++))
 	done
 
 	while [ $k -lt 8 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace} 0"
+	    mix1="$mix1 ${TRACE_DIR}/${trace} no 0"
 	    ((k++))
 	done
 
@@ -72,16 +72,18 @@ do
 	trace=${traces[$j]}
 	while [ $k -lt 4 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace} 1 10 25"
+	    mix1="$mix1 ${TRACE_DIR}/${trace} no 1 10 25"
 	    ((k++))
 	done
 
 	while [ $k -lt 8 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace_fitting} 1 10 25"
+	    mix1="$mix1 ${TRACE_DIR}/${trace_fitting} no 1 10 25"
 	    ((k++))
 	done
 
     (./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $mix1) &> results_${num_cores}core_${n_warm}_${n_sim}_enclave/${trace}_${trace_fitting}.txt &
 
 done
+
+

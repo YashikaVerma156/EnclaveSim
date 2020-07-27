@@ -32,13 +32,19 @@ string decryption(string cipher_text) {
 }
 
 string get_msg() {
-	string msg = "hello dixit how are you!";
+	
+	string msg = "Today, Tuesday 7 March 2017, WikiLeaks begins its new series of leaks" 
+				  "on the U.S. Central Intelligence Agency. Code-named Vault 7 by WikiLeaks," 
+				  "it is the largest ever publication of confidential documents on the agency."
+	              "The first full part of the series, Year Zero, comprises 8,761 documents and files from an isolated,"
+	              "high-security network situated inside the CIAs Center for Cyber Intelligence in Langley, Virgina.";
+
 	return msg;
 }
 
 
 int main () {
-	for (int i=0;i<5000;i++) {
+	for (int i=0;i<1000;i++) {
 		string msg = get_msg();
 		msg = encryption(msg);
 		cout << "Cipher-text: " << msg << endl; 

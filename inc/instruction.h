@@ -32,7 +32,6 @@ class input_instr {
 
     // instruction pointer or PC (Program Counter)
     uint64_t ip;
-    // uint64_t trusted_id;
 
     // branch info
     uint8_t is_branch;
@@ -48,7 +47,44 @@ class input_instr {
         ip = 0;
         is_branch = 0;
         branch_taken = 0;
-        // trusted_id = 0;
+
+        for (uint32_t i=0; i<NUM_INSTR_SOURCES; i++) {
+            source_registers[i] = 0;
+            source_memory[i] = 0;
+        }
+
+        for (uint32_t i=0; i<NUM_INSTR_DESTINATIONS; i++) {
+            destination_registers[i] = 0;
+            destination_memory[i] = 0;
+        }
+
+    };
+};
+
+class enclave_aware_instr {
+  public:
+
+    // instruction pointer or PC (Program Counter)
+    uint64_t ip;
+
+    // to check instruction is trusted or not
+    uint8_t trusted_instruction_id; // (id:100 for enclave-init, id:200 for enclave-end, id:0 for untrusted-intructions and id:1 for trusted instructions)
+
+    // branch info
+    uint8_t is_branch;
+    uint8_t branch_taken;
+
+    uint8_t destination_registers[NUM_INSTR_DESTINATIONS]; // output registers
+    uint8_t source_registers[NUM_INSTR_SOURCES]; // input registers
+
+    uint64_t destination_memory[NUM_INSTR_DESTINATIONS]; // output memory
+    uint64_t source_memory[NUM_INSTR_SOURCES]; // input memory
+
+    enclave_aware_instr() {
+        ip = 0;
+        is_branch = 0;
+        branch_taken = 0;
+        trusted_instruction_id = -1;
 
         for (uint32_t i=0; i<NUM_INSTR_SOURCES; i++) {
             source_registers[i] = 0;
@@ -68,7 +104,6 @@ class cloudsuite_instr {
 
     // instruction pointer or PC (Program Counter)
     uint64_t ip;
-    // uint64_t trusted_id;
 
     // branch info
     uint8_t is_branch;
@@ -86,7 +121,6 @@ class cloudsuite_instr {
         ip = 0;
         is_branch = 0;
         branch_taken = 0;
-        // trusted_id = 0;
 
         for (uint32_t i=0; i<NUM_INSTR_SOURCES; i++) {
             source_registers[i] = 0;
@@ -133,8 +167,7 @@ class ooo_model_instr {
             reg_RAW_checked[NUM_INSTR_SOURCES];
     
 
-    uint8_t enclave_id; // @champsim-enclave
-
+    uint8_t enclave_id;
     uint8_t branch_type;
     uint64_t branch_target;
 

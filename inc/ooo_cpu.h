@@ -40,8 +40,9 @@ class O3_CPU {
     char gunzip_command[1024];
 
     // instruction
-    input_instr next_instr;
-    input_instr current_instr;
+    input_instr next_input_instr, current_input_instr, trace_read_input_instr;
+    enclave_aware_instr next_enclave_aware_instr, current_enclave_aware_instr, trace_read_enclave_aware_instr;
+
     cloudsuite_instr current_cloudsuite_instr;
     uint64_t instr_unique_id, completed_executions, 
              begin_sim_cycle, begin_sim_instr, 
@@ -168,7 +169,7 @@ class O3_CPU {
     }
 
     // functions
-    void read_from_trace(),
+    void read_from_trace(uint8_t is_enclave_aware_trace),
          fetch_instruction(),
          decode_and_dispatch(),
          schedule_instruction(),

@@ -13,7 +13,7 @@ using namespace std;
 typedef struct trace_instr_format {
 
     unsigned long long int ip;  // instruction pointer (program counter) value
-    bool is_trusted_code; // is this trusted code intructions
+    uint8_t trusted_instruction_id; // is this trusted code intructions
 
     unsigned char is_branch;    // is this branch
     unsigned char branch_taken; // if so, is this taken
@@ -47,16 +47,13 @@ UINT64 last_trusted_address=0;
 
 trace_instr_format_t curr_instr;
 
-KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE,  "pintool", "o", "champsim.trace", 
-        "specify file name for Champsim tracer output");
+KNOB<string> KnobOutputFile(KNOB_MODE_WRITEONCE,  "pintool", "o", "champsim.trace", "specify file name for Champsim tracer output");
 
 // 2,000,000
-KNOB<UINT64> KnobSkipInstructions(KNOB_MODE_WRITEONCE, "pintool", "s", "2000000", 
-        "How many instructions to skip before tracing begins");
+KNOB<UINT64> KnobSkipInstructions(KNOB_MODE_WRITEONCE, "pintool", "s", "2000000", "How many instructions to skip before tracing begins");
 
-// 50,000,000
-KNOB<UINT64> KnobTraceInstructions(KNOB_MODE_WRITEONCE, "pintool", "t", "50000000", 
-        "How many instructions to trace");
+// 5,000,000
+KNOB<UINT64> KnobTraceInstructions(KNOB_MODE_WRITEONCE, "pintool", "t", "50000000", "How many instructions to trace");
 
 INT32 Usage()
 {
@@ -239,11 +236,18 @@ void BeginInstruction(VOID *ip, ADDRINT InsAdd)
               
     if (enclave_mode) {
         trusted_instructions_executed++;
-        curr_instr.is_trusted_code = true;
+        if (first_trusted_address == InsAdd)
+            curr_instr.trusted_instruction_id = 100;
+        else 
+            curr_instr.trusted_instruction_id = 1;
     }
     else {
         untrusted_instructions_executed++;
-        curr_instr.is_trusted_code = false;
+        if (last_trusted_address == InsAdd)
+            curr_instr.trusted_instruction_id = 200;
+        else 
+            curr_instr.trusted_instruction_id = 0;
+
     }
     total_instructions_executed++;
 
@@ -384,7 +388,9 @@ int main(int argc, char *argv[])
 
     // open trace file 
     const char* tracefile = (filename+".trace").c_str();;
-    out = fopen(tracefile, "ar");
+    
+    remove(tracefile);
+    out = fopen(tracefile, "ab");
 
     if (!out) 
     {

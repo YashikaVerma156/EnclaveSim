@@ -95,7 +95,8 @@ extern uint8_t warmup_complete[NUM_CPUS],
                all_simulation_complete,
                MAX_INSTR_DESTINATIONS,
                knob_cloudsuite,
-               knob_low_bandwidth;
+               knob_low_bandwidth,
+               is_enclave_aware_trace[NUM_CPUS];
 
 extern uint64_t current_core_cycle[NUM_CPUS], 
                 stall_cycle[NUM_CPUS], 
@@ -106,6 +107,7 @@ extern uint64_t current_core_cycle[NUM_CPUS],
 extern queue <uint64_t> page_queue;
 extern map <uint64_t, uint64_t> recent_page, unique_cl[NUM_CPUS];
 extern uint64_t previous_ppage, num_adjacent_page, num_cl[NUM_CPUS], allocated_pages, num_page[NUM_CPUS], minor_fault[NUM_CPUS], major_fault[NUM_CPUS];
+extern int enclave_mode[NUM_CPUS];
 
 // @champsim-enclave: newly added data structures
 class ListNode {

@@ -12,9 +12,7 @@ uint8_t warmup_complete[NUM_CPUS],
     MAX_INSTR_DESTINATIONS = NUM_INSTR_DESTINATIONS,
     knob_cloudsuite = 0,
     knob_low_bandwidth = 0,
-    is_enclave_aware_trace = 0;
-
-char * knob_enclave_aware_trace;
+    is_enclave_aware_trace[NUM_CPUS];
 
 uint64_t warmup_instructions = 1000000,
          simulation_instructions = 10000000,
@@ -48,7 +46,6 @@ vector<vector<uint32_t>> end_point(NUM_CPUS);
 vector<vector<uint32_t>> lifetime(NUM_CPUS);
 int current_enclave[NUM_CPUS];
 int max_enclave[NUM_CPUS];
-int enclave_mode[NUM_CPUS];
 uint64_t counter1 = 0, counter2 = 0;
 //end
 
@@ -782,7 +779,9 @@ void enclave_teardown(uint32_t cpu)
     }
     disable_deadlock_check(cpu);
 
-    cout << "E-Pages: " << total_enclave_pages << " Dirty-pages:" << dirty_enclave_pages << " Latency-Delay: " << stall_cycle[cpu] - current_core_cycle[cpu] << " rob head: " << rob_head[cpu] << " rob tail: " << rob_tail[cpu] << " occupancy: " << ooo_cpu[cpu].ROB.occupancy << endl << endl;
+    cout << "E-Pages: " << total_enclave_pages << " Dirty-pages:" << dirty_enclave_pages << endl << endl;
+
+    // cout << "E-Pages: " << total_enclave_pages << " Dirty-pages:" << dirty_enclave_pages << " Latency-Delay: " << stall_cycle[cpu] - current_core_cycle[cpu] << " rob head: " << rob_head[cpu] << " rob tail: " << rob_tail[cpu] << " occupancy: " << ooo_cpu[cpu].ROB.occupancy << endl << endl;
 
 }
 
@@ -1096,7 +1095,7 @@ uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t
 
     // sanity checks
 
-    init_exit_assert(cpu);
+    // init_exit_assert(cpu);
 
     if (enclave_page_map.size() != enclave_allocated_pages) {
         assert(0 && "Enclave page counter is not consistent");
@@ -1115,7 +1114,6 @@ uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t
     if (stall_cycle[cpu] <= current_core_cycle[cpu]) {
         stall_cycle[cpu] = current_core_cycle[cpu];
     }
-
 
     uint8_t swap = 0;
     bool is_page_hit = false;
@@ -1145,6 +1143,7 @@ uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t
     }
 
     if (enclave_mode[cpu] == 0 and (pr_enclave != enclave_page_map.end())) {
+        cout << enclave_page_map.size() << endl;
         assert(0 && "Illegal Enclave Page Found");
     }
 
@@ -1472,7 +1471,7 @@ uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t
             assert(0 && "Illegal page allocation");
         }
     }
-    else {
+    else if (enclave_mode[cpu] == 0){
         if (ppage <= ENCLAVE_PAGES or ppage > DRAM_PAGES) {
             cout << ppage << endl;
             assert(0 && "Illegal page allocation");
@@ -1562,7 +1561,6 @@ int main(int argc, char **argv)
                 {"hide_heartbeat", no_argument, 0, 'h'},
                 {"cloudsuite", no_argument, 0, 'c'},
                 {"low_bandwidth", no_argument, 0, 'b'},
-                {"enclave_aware_trace", required_argument, 0, 'k'},
                 {"traces", no_argument, 0, 't'},
                 {0, 0, 0, 0}
             };
@@ -1599,15 +1597,6 @@ int main(int argc, char **argv)
             break;
         case 'b':
             knob_low_bandwidth = 1;
-            break;
-        case 'k':
-            knob_enclave_aware_trace = optarg;        
-            if (strcmp(knob_enclave_aware_trace, "yes") == 0) {
-                is_enclave_aware_trace = 1;
-            }
-            else if (strcmp(knob_enclave_aware_trace, "no") == 0) {
-                is_enclave_aware_trace = 0;
-            }
             break;
         case 't':
             traces_encountered = 1;
@@ -1670,6 +1659,7 @@ int main(int argc, char **argv)
     bool is_trace = true;
     int cpu_id = 0;
     char trace_name[1024];
+    char knob_enclave_aware_trace[32];
 #endif
 
     for (int i = 0; i < argc; i++)
@@ -1682,55 +1672,67 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef ENCLAVE
-            if (is_trace or is_enclave_aware_trace)
+            if (is_trace)
             {
                 is_trace = false;
                 sprintf(trace_name, "%s", argv[i]);
-                if (is_enclave_aware_trace)
+                
+                sprintf(knob_enclave_aware_trace, "%s", argv[i+1]);
+
+                if (strcmp(knob_enclave_aware_trace, "yes") == 0) {
+                    is_enclave_aware_trace[cpu_id] = 1;
+                }
+                else if (strcmp(knob_enclave_aware_trace, "no") == 0) {
+                    is_enclave_aware_trace[cpu_id] = 0;
+                }
+
+                if (is_enclave_aware_trace[cpu_id]) 
                     cout << "CPU " << count_traces << " runs " << trace_name << " (Enclave Aware Trace: Yes)" << endl; 
                 else 
-                    cout << "CPU " << count_traces - 1 << " runs " << trace_name  << " (Enclave Aware Trace: No)" << endl;
+                    cout << "CPU " << count_traces << " runs " << trace_name  << " (Enclave Aware Trace: No)" << endl;
             }
             else
             {
-                // read the enclave checkpoint and lifetime from input trace
                 is_trace = true;
-                int NUM_ENCLAVE = atoi(argv[i]);
 
-                for (int j = 0; j < NUM_ENCLAVE; j++)
-                {
-                    uint32_t current_start_point = (uint32_t)atoi(argv[++i]);
-                    start_point[cpu_id].push_back(current_start_point);
+                if (!is_enclave_aware_trace[cpu_id]) {
+                    int NUM_ENCLAVE = atoi(argv[++i]);
+                    for (int j = 0; j < NUM_ENCLAVE; j++)
+                    {
+                        uint32_t current_start_point = (uint32_t)atoi(argv[++i]);
+                        start_point[cpu_id].push_back(current_start_point);
+                    }
+
+                    for (int j = 0; j < NUM_ENCLAVE; j++)
+                    {
+                        uint32_t current_start_point = start_point[cpu_id][j];
+                        uint32_t life_time = (uint32_t)atoi(argv[++i]);
+                        lifetime[cpu_id].push_back(life_time);
+                        end_point[cpu_id].push_back(current_start_point + life_time);
+                    }
+
+                    cout << "Num of Enclaves: " << NUM_ENCLAVE << endl;
+
+                    for (int enclave_number = 0; enclave_number < NUM_ENCLAVE; enclave_number++)
+                    {
+                        cout << "       " << "E-NO:" << enclave_number + 1 << " erange:(" << start_point[cpu_id][enclave_number] << "," << end_point[cpu_id][enclave_number] << "] lifetime: " << lifetime[cpu_id][enclave_number] << endl;
+                    }
+
+                    cout << endl;
+
+                    max_enclave[cpu_id] = NUM_ENCLAVE;
+                    current_enclave[cpu_id] = 0;
+
+                    // set various checkpoints
+                    for (int j = 0; j < NUM_ENCLAVE; j++)
+                    {
+                        start_point[cpu_id][j] *= 1000000;
+                        end_point[cpu_id][j] *= 1000000;
+                        lifetime[cpu_id][j] *= 1000000;
+                    }
                 }
-
-                for (int j = 0; j < NUM_ENCLAVE; j++)
-                {
-                    uint32_t current_start_point = start_point[cpu_id][j];
-                    uint32_t life_time = (uint32_t)atoi(argv[++i]);
-                    lifetime[cpu_id].push_back(life_time);
-                    end_point[cpu_id].push_back(current_start_point + life_time);
-                }
-
-                cout << "Num of Enclaves: " << NUM_ENCLAVE << endl;
-
-                for (int enclave_number = 0; enclave_number < NUM_ENCLAVE; enclave_number++)
-                {
-                    cout << "       " << "E-NO:" << enclave_number + 1 << " erange:(" << start_point[cpu_id][enclave_number] << "," << end_point[cpu_id][enclave_number] << "] lifetime: " << lifetime[cpu_id][enclave_number] << endl;
-                }
-
-                cout << endl;
-
-                max_enclave[cpu_id] = NUM_ENCLAVE;
-                current_enclave[cpu_id] = 0;
+                
                 enclave_mode[cpu_id] = 0;
-
-                // set various checkpoints
-                for (int j = 0; j < NUM_ENCLAVE; j++)
-                {
-                    start_point[cpu_id][j] *= 1000000;
-                    end_point[cpu_id][j] *= 1000000;
-                    lifetime[cpu_id][j] *= 1000000;
-                }
 
                 // initiliaze variable, that used in fruther deadlock checking
                 rob_head[cpu_id] = -1;
@@ -1747,7 +1749,7 @@ int main(int argc, char **argv)
 
             char *full_name = ooo_cpu[count_traces].trace_string,
                  *last_dot = strrchr(ooo_cpu[count_traces].trace_string, '.');
-
+            
             ifstream test_file(full_name);
             if (!test_file.good())
             {
@@ -1944,12 +1946,22 @@ int main(int argc, char **argv)
 
 #ifdef ENCLAVE
         // starts enclave execution only after wamp-up completion
-        if (all_warmup_complete > NUM_CPUS) {
-            check_enclave_init(i);
-            check_enclave_exit(i);
-            init_exit_assert(i);
-            enable_deadlock_check(i);
-        }      
+        if (is_enclave_aware_trace[i]) {
+            if (enclave_mode[i] == -1) {
+                  cout << endl << "Enclave EXIT!" << " CPU:" << i << " ";
+                  enclave_teardown(i);
+                  enclave_mode[i] = 0;  
+            } 
+        }
+        else {
+            if (all_warmup_complete > NUM_CPUS) {
+                check_enclave_init(i);
+                check_enclave_exit(i);
+                init_exit_assert(i);
+                enable_deadlock_check(i);
+            }
+        }
+              
 #endif
 
             // core might be stalled due to page fault or branch misprediction
@@ -1976,7 +1988,6 @@ int main(int argc, char **argv)
                 // memory operation
                 ooo_cpu[i].schedule_memory_instruction();
                 ooo_cpu[i].execute_memory_instruction();
-
                 ooo_cpu[i].update_rob();
 
                 // decode
@@ -1992,7 +2003,8 @@ int main(int argc, char **argv)
                 if ((ooo_cpu[i].IFETCH_BUFFER.occupancy < ooo_cpu[i].IFETCH_BUFFER.SIZE) && (ooo_cpu[i].fetch_stall == 0))
                 {
                     // add the instruction to the ifectch-buffer.
-                    ooo_cpu[i].read_from_trace();
+                    ooo_cpu[i].read_from_trace(is_enclave_aware_trace[i]);
+
                 }
             }
 

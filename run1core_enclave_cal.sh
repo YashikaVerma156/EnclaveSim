@@ -25,7 +25,7 @@ do
 	trace=${traces[$j]}
 	while [ $k -lt 1 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace} 1 20 10"
+	    mix1="$mix1 ${TRACE_DIR}/${trace} no 1 20 10"
 	    ((k++))
 	done
 
@@ -43,7 +43,7 @@ do
 	trace=${traces[$j]}
 	while [ $k -lt 1 ]
 	do
-	    mix1="$mix1 ${TRACE_DIR}/${trace} 2 5 20 10 10"
+	    mix1="$mix1 ${TRACE_DIR}/${trace} no 2 5 20 10 10"
 	    ((k++))
 	done
 

@@ -4,13 +4,14 @@
 // out-of-order core
 O3_CPU ooo_cpu[NUM_CPUS];
 uint64_t current_core_cycle[NUM_CPUS], stall_cycle[NUM_CPUS];
+int enclave_mode[NUM_CPUS];
 uint32_t SCHEDULING_LATENCY = 0, EXEC_LATENCY = 0, DECODE_LATENCY = 0;
 
 void O3_CPU::initialize_core()
 {
 }
 
-void O3_CPU::read_from_trace()
+void O3_CPU::read_from_trace(uint8_t is_enclave_aware_trace)
 {
     // actual processors do not work like this but for easier implementation,
     // we read instruction traces and virtually add them in the ROB
@@ -23,17 +24,15 @@ void O3_CPU::read_from_trace()
     // first, read PIN trace
     while (continue_reading)
     {
-
         size_t instr_size = knob_cloudsuite ? sizeof(cloudsuite_instr) : sizeof(input_instr);
-        // instr_size = instr_size - sizeof(uint64_t);
+
         if (knob_cloudsuite)
         {
-            // instr_size = instr_size - sizeof(uint64_t);
+            
             if (!fread(&current_cloudsuite_instr, instr_size, 1, trace_file))
             {
                 // reached end of file for this trace
                 cout << "*** Reached end of trace for Core: " << cpu << " Repeating trace: " << trace_string << endl;
-
 
                 // close the trace file and re-open it
                 pclose(trace_file);
@@ -55,6 +54,7 @@ void O3_CPU::read_from_trace()
 
                 arch_instr.instr_id = instr_unique_id;
                 arch_instr.ip = current_cloudsuite_instr.ip;
+
                 arch_instr.is_branch = current_cloudsuite_instr.is_branch;
                 arch_instr.branch_taken = current_cloudsuite_instr.branch_taken;
 
@@ -157,44 +157,88 @@ void O3_CPU::read_from_trace()
         }
         else
         {
-            input_instr trace_read_instr;
-            if (!fread(&trace_read_instr, instr_size, 1, trace_file))
-            {
-                // reached end of file for this trace
-                cout << "*** Reached end of trace for Core: " << cpu << " Repeating trace: " << trace_string << endl;
-                // close the trace file and re-open it
-                pclose(trace_file);
-                trace_file = popen(gunzip_command, "r");
-                if (trace_file == NULL)
-                {
-                    cerr << endl
-                         << "*** CANNOT REOPEN TRACE FILE: " << trace_string << " ***" << endl;
-                    assert(0);
+            int status = -1;
+            if (is_enclave_aware_trace) {
+                instr_size = sizeof(enclave_aware_instr);
+                status = fread(&trace_read_enclave_aware_instr, instr_size, 1, trace_file); 
+                if (!status) {
+                    // reached end of file for this trace
+                    cout << "*** Reached end of trace for Core: " << cpu << " Repeating trace: " << trace_string << endl;
+                    // close the trace file and re-open it
+                    pclose(trace_file);
+                    trace_file = popen(gunzip_command, "r");
+                    if (trace_file == NULL) {
+                        cerr << endl
+                            << "*** CANNOT REOPEN TRACE FILE: " << trace_string << " ***" << endl;
+                        assert(0);
+                    }
+                }
+            }  
+            else {
+                instr_size = sizeof(input_instr);
+                status = fread(&trace_read_input_instr, instr_size, 1, trace_file);
+                if (!status) {
+                    // reached end of file for this trace
+                    cout << "*** Reached end of trace for Core: " << cpu << " Repeating trace: " << trace_string << endl;
+                    // close the trace file and re-open it
+                    pclose(trace_file);
+                    trace_file = popen(gunzip_command, "r");
+                    if (trace_file == NULL)
+                    {
+                        cerr << endl
+                            << "*** CANNOT REOPEN TRACE FILE: " << trace_string << " ***" << endl;
+                        assert(0);
+                    }
                 }
             }
-            else
+            
+            if (status)
             { // successfully read the trace
-
-                // cout << endl << "welcome: " << trace_read_instr.trusted_id << endl;
-
-                if (instr_unique_id == 0)
-                {
-                    current_instr = next_instr = trace_read_instr;
+                if (is_enclave_aware_trace) {
+                    if (instr_unique_id == 0)
+                        current_enclave_aware_instr = next_enclave_aware_instr = trace_read_enclave_aware_instr;
+                    else {
+                        current_enclave_aware_instr = next_enclave_aware_instr;
+                        next_enclave_aware_instr = trace_read_enclave_aware_instr;
+                    }
                 }
-                else
-                {
-                    current_instr = next_instr;
-                    next_instr = trace_read_instr;
+                else {
+                    if (instr_unique_id == 0)
+                        current_input_instr = next_input_instr = trace_read_input_instr;
+                    else {
+                        current_input_instr = next_input_instr;
+                        next_input_instr = trace_read_input_instr;
+                    }
                 }
+                
 
                 // copy the instruction into the performance model's instruction format
                 ooo_model_instr arch_instr;
                 int num_reg_ops = 0, num_mem_ops = 0;
-
                 arch_instr.instr_id = instr_unique_id;
-                arch_instr.ip = current_instr.ip;
-                arch_instr.is_branch = current_instr.is_branch;
-                arch_instr.branch_taken = current_instr.branch_taken;
+
+                if (is_enclave_aware_trace) {
+                    arch_instr.ip = current_enclave_aware_instr.ip;
+                    arch_instr.is_branch = current_enclave_aware_instr.is_branch;
+                    arch_instr.branch_taken = current_enclave_aware_instr.branch_taken;
+                }
+                else {
+                    arch_instr.ip = current_input_instr.ip;
+                    arch_instr.is_branch = current_input_instr.is_branch;
+                    arch_instr.branch_taken = current_input_instr.branch_taken;
+                }
+                
+                // set enclave mode
+                if (is_enclave_aware_trace) {
+                    if (current_enclave_aware_instr.trusted_instruction_id == 100) {
+                        cout << endl << "Enclave INIT! " << " CPU:" << cpu << endl;
+                        enclave_mode[cpu] = 1;
+                    }
+                    else if (current_enclave_aware_instr.trusted_instruction_id == 200) {
+                        // cout << "Disable Enclave Mode" << endl;
+                        enclave_mode[cpu] = -1;
+                    }
+                }
 
                 arch_instr.asid[0] = cpu;
                 arch_instr.asid[1] = cpu;
@@ -208,9 +252,16 @@ void O3_CPU::read_from_trace()
 
                 for (uint32_t i = 0; i < MAX_INSTR_DESTINATIONS; i++)
                 {
-                    arch_instr.destination_registers[i] = current_instr.destination_registers[i];
-                    arch_instr.destination_memory[i] = current_instr.destination_memory[i];
-                    arch_instr.destination_virtual_address[i] = current_instr.destination_memory[i];
+                    if (is_enclave_aware_trace) {
+                        arch_instr.destination_registers[i] = current_enclave_aware_instr.destination_registers[i];
+                        arch_instr.destination_memory[i] = current_enclave_aware_instr.destination_memory[i];
+                        arch_instr.destination_virtual_address[i] = current_enclave_aware_instr.destination_memory[i];
+                    }
+                    else {
+                        arch_instr.destination_registers[i] = current_input_instr.destination_registers[i];
+                        arch_instr.destination_memory[i] = current_input_instr.destination_memory[i];
+                        arch_instr.destination_virtual_address[i] = current_input_instr.destination_memory[i];
+                    }
 
                     switch (arch_instr.destination_registers[i])
                     {
@@ -260,10 +311,17 @@ void O3_CPU::read_from_trace()
 
                 for (int i = 0; i < NUM_INSTR_SOURCES; i++)
                 {
-                    arch_instr.source_registers[i] = current_instr.source_registers[i];
-                    arch_instr.source_memory[i] = current_instr.source_memory[i];
-                    arch_instr.source_virtual_address[i] = current_instr.source_memory[i];
-
+                    if (is_enclave_aware_trace) {
+                        arch_instr.source_registers[i] = current_enclave_aware_instr.source_registers[i];
+                        arch_instr.source_memory[i] = current_enclave_aware_instr.source_memory[i];
+                        arch_instr.source_virtual_address[i] = current_enclave_aware_instr.source_memory[i];
+                    }
+                    else {
+                        arch_instr.source_registers[i] = current_input_instr.source_registers[i];
+                        arch_instr.source_memory[i] = current_input_instr.source_memory[i];
+                        arch_instr.source_virtual_address[i] = current_input_instr.source_memory[i];
+                    }
+                    
                     switch (arch_instr.source_registers[i])
                     {
                     case 0:
@@ -355,7 +413,7 @@ void O3_CPU::read_from_trace()
 
                 if ((arch_instr.is_branch == 1) && (arch_instr.branch_taken == 1))
                 {
-                    arch_instr.branch_target = next_instr.ip;
+                    arch_instr.branch_target = next_input_instr.ip;
                 }
 
                 // add this instruction to the IFETCH_BUFFER
