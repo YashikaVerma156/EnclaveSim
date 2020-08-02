@@ -1,6 +1,6 @@
 <p align="center">
   <h1 align="center"> EnclaveSim </h1>
-  <p> A trace-based micro-architectural simulator to support enclave simulations. It is build on top of the existing simulator ChampSim.</p>
+  <p> A trace-based micro-architectural simulator to support enclave simulations. It is build on top of an existing simulator ChampSim.</p>
 
 # Compile
 
