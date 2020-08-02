@@ -33,6 +33,7 @@ For EnclaveSim config with Enclave aware trace:
         ${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes}
 For EnclaveSim config with Non-enclave aware trace): 
         ${TRACE_INFO}: {trace name, trace type, number of encalve, start-point, end-point} {400.perlbench-41B.champsimtrace.xz no 1 20 35}
+* Here start-point and end-point is instruction number in million.
 
 ```
 
