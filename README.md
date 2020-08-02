@@ -7,12 +7,12 @@
 * How to build it?
 
 ```
-a) to build with configuratin, encryption and num_core paramenter
+a) To build with configuration, encryption and num of core paramenter
 
 $ ./build.sh ${configuration} ${encryption_operation} ${num_core}
 $ ./build.sh enclave off 8
 
-b) to build more customized parameter
+b) To build with extra paremeter to make build more customized 
 
 $ ./build_enclavesim.sh ${BRANCH} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPER} $NUM_CORE}
 $ ./build_enclavesim.sh bimodal no no no no lru enclave off 8
