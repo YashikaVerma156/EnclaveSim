@@ -27,9 +27,12 @@ $ ./build_enclavesim.sh bimodal no no no no lru enclave off 8
 ${BINARY}: EnclaveSim binary compiled by "build.sh" (bimodal-no-no-no-no-lru-enclave-off-1core)
 ${N_WARM}: number of instructions for warmup (1 million)
 ${N_SIM}:  number of instructinos for detailed simulation (10 million)
-For Baseline config: ${TRACE_INFO}: {(trace name)} {(400.perlbench-41B.champsimtrace.xz)}
-For EnclaveSim config (Enclave aware trace): ${TRACE_INFO}: {(trace name, trace type)} {(example1.champsimtrace.xz yes)}
-For EnclaveSim config (SPEC trace): ${TRACE_INFO}: {(trace name, trace type, number of encalve, start-point, end-point)} {(400.perlbench-41B.champsimtrace.xz no 1 20 35)}
+For Baseline config: 
+        ${TRACE_INFO}: {trace name} {400.perlbench-41B.champsimtrace.xz}
+For EnclaveSim config with Enclave aware trace: 
+        ${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes}
+For EnclaveSim config with Non-enclave aware trace): 
+        ${TRACE_INFO}: {trace name, trace type, number of encalve, start-point, end-point} {400.perlbench-41B.champsimtrace.xz no 1 20 35}
 
 ```
 
