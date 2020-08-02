@@ -7,7 +7,7 @@
 * How to build it?
 
 ```
-a) To build with configuration, encryption and num-of-core paramenter
+a) To build with configuration, encryption and num_core paramenter
 
 $ ./build.sh ${configuration} ${encryption_operation} ${num_core}
 $ ./build.sh enclave off 8
