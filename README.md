@@ -1,14 +1,20 @@
 <p align="center">
   <h1 align="center"> EnclaveSim </h1>
-  <p> A trace-based micro-architectural simulator to support enclave simulations. It is build on top existing Simulator ChampSim.</p>
+  <p> A trace-based micro-architectural simulator to support enclave simulations. It is build on top existing simulator ChampSim.</p>
 
 # Compile
 
 * How to build it?
 
 ```
+# TO BUILD WITH DEFAULT PARAMETER
 $ ./build.sh ${configuration} ${encryption_operation} ${num_core}
 $ ./build.sh enclave off 8
+
+TO BUILD WITH CUSTOMIZED PARAMETER
+$ ./build_enclavesim.sh ${BRANCH} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPER} $NUM_CORE}
+$ ./build_enclavesim.sh bimodal no no no no lru enclave off 8
+
 ```
 
 # Run simulation [To re-generate EnclaveSim results]
