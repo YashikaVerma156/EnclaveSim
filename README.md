@@ -13,7 +13,7 @@ $ ./build.sh enclave off 8
 
 b) Customized build
 $ ./build_enclavesim.sh ${BRANCH} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPER} $NUM_CORE}
-$ ./build_enclavesim.sh bimodal no no no no lru enclave off 8
+$ ./build_enclavesim.sh bimodal no no no no lru enclave on 8
 
 ```
 
@@ -24,18 +24,22 @@ $ ./build_enclavesim.sh bimodal no no no no lru enclave off 8
 ``` 
 ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
 
-${BINARY}: EnclaveSim binary compiled by "build.sh" (bimodal-no-no-no-no-lru-enclave-off-1core)
-${N_WARM}: number of instructions for warmup (1 million)
-${N_SIM}:  number of instructinos for detailed simulation (10 million)
+${BINARY}: EnclaveSim binary compiled by "build.sh" (bimodal-no-no-no-no-lru-enclave-on-1core)
+${N_WARM}: number of instructions for warmup (10 million)
+${N_SIM}:  number of instructinos for detailed simulation (50 million)
 ${TRACE_INFO}: 
-  For Baseline config: 
+  i) For Baseline config: 
       ${TRACE_INFO}: {trace name} {400.perlbench-41B.champsimtrace.xz}
-  For EnclaveSim config with Enclave aware trace: 
+  ii) For EnclaveSim config with Enclave aware trace: 
       ${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes} 
-  For EnclaveSim config with Non-enclave aware trace: 
+  iii) For EnclaveSim config with Non-enclave aware trace: 
       ${TRACE_INFO}: {trace name, trace type, number of encalve, start-point, end-point} {400.perlbench-41B.champsimtrace.xz no 1 20 35}
       *here start-point and end-point is instruction number in million.
 
+Variant-1: ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 5 50 400.perlbench-41B.champsimtrace.xz
+Variant-2: ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 example1.champsimtrace.xz yes 
+Variant-3: ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 400.perlbench-41B.champsimtrace.xz no 1 20 35
+ 
 ```
 
 * For multi-core 
