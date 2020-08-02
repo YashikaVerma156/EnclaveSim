@@ -22,7 +22,7 @@ $ ./build_enclavesim.sh bimodal no no no no lru enclave on 8
 * For single-core
 
 ``` 
-./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
+Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
 
 ${BINARY}: EnclaveSim binary compiled by "build.sh" (bimodal-no-no-no-no-lru-enclave-on-1core)
 ${N_WARM}: number of instructions for warmup (10 million)
@@ -36,9 +36,9 @@ ${TRACE_INFO}:
       ${TRACE_INFO}: {trace name, trace type, number of encalve, start-point, end-point} {400.perlbench-41B.champsimtrace.xz no 1 20 35}
       *here start-point and end-point is instruction number in million.
 
-Variant-1: ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 5 50 400.perlbench-41B.champsimtrace.xz
-Variant-2: ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 example1.champsimtrace.xz yes 
-Variant-3: ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 400.perlbench-41B.champsimtrace.xz no 1 20 35
+Variant-1: $ ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 5 50 400.perlbench-41B.champsimtrace.xz
+Variant-2: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 example1.champsimtrace.xz yes 
+Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 400.perlbench-41B.champsimtrace.xz no 1 20 35
  
 ```
 
