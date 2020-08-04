@@ -19,8 +19,6 @@ $ ./build_enclavesim.sh bimodal no no no no lru enclave on 8
 
 # Run simulation
 
-* For single-core
-
 ``` 
 Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
 
@@ -42,19 +40,16 @@ Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mc
  
 ```
 
-* For multi-core 
-``` 
-./run2core.sh [BINARY] [N_WARM] [N_SIM] [TRACE1_INFO] [TRACE2_INFO]
-```
-
-
 # Run simulation [To re-generate EnclaveSim results]
 
 ```
 $ ./run1core_baseline_cal.sh
 $ ./run8core_baseline_cal.sh
 $ ./run8core_enclave_cal.sh
+
+* Please write your own script to run any customized configuration. You can refer run8core_enclave_cal.sh for the same. 
 ```
+
 
 
 # PIN Tool [Supports Enclave-aware trace generation]
