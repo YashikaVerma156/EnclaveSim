@@ -115,30 +115,6 @@ void print_roi_stats(uint32_t cpu, CACHE *cache)
     cout << " AVERAGE MISS LATENCY: " << (1.0 * (cache->total_miss_latency)) / TOTAL_MISS << " cycles" << endl;
     //cout << " AVERAGE MISS LATENCY: " << (cache->total_miss_latency)/TOTAL_MISS << " cycles " << cache->total_miss_latency << "/" << TOTAL_MISS<< endl;
 
-#ifdef ENCLAVE
-
-    const string s = "L1I";
-    if (!s.compare(cache->NAME))
-    {
-
-        for (uint32_t i = 0; i < NUM_TYPES; i++)
-        {
-            TOTAL_ACCESS += ooo_cpu[cpu].L1D.roi_access[cpu][i];
-            TOTAL_HIT += ooo_cpu[cpu].L1D.roi_hit[cpu][i];
-            TOTAL_MISS += ooo_cpu[cpu].L1D.roi_miss[cpu][i];
-            TOTAL_ENCLAVE_ACCESS += ooo_cpu[cpu].L1D.roi_enclave_access[cpu][i];
-            TOTAL_ENCLAVE_HIT += ooo_cpu[cpu].L1D.roi_enclave_hit[cpu][i];
-            TOTAL_ENCLAVE_MISS += ooo_cpu[cpu].L1D.roi_enclave_miss[cpu][i];
-        }
-
-        cout << "L1 ";
-        cout << " TOTAL     ACCESS: " << setw(10) << TOTAL_ACCESS << "  HIT: " << setw(10) << TOTAL_HIT << "  MISS: " << setw(10) << TOTAL_MISS << endl;
-
-        cout << "L1 ";
-        cout << " TOTAL   E-ACCESS: " << setw(10) << TOTAL_ENCLAVE_ACCESS << " EHIT: " << setw(10) << TOTAL_ENCLAVE_HIT << " EMISS: " << setw(10) << TOTAL_ENCLAVE_MISS << endl;
-    }
-
-#endif
 }
 
 void print_sim_stats(uint32_t cpu, CACHE *cache)
@@ -181,28 +157,6 @@ void print_sim_stats(uint32_t cpu, CACHE *cache)
     cout << cache->NAME;
     cout << " WRITEBACK ACCESS: " << setw(10) << cache->sim_access[cpu][3] << "  HIT: " << setw(10) << cache->sim_hit[cpu][3] << "  MISS: " << setw(10) << cache->sim_miss[cpu][3] << endl;
 
-#ifdef ENCLAVE
-    const string s = "L1I";
-    if (!s.compare(cache->NAME))
-    {
-
-        for (uint32_t i = 0; i < NUM_TYPES; i++)
-        {
-            TOTAL_ACCESS += ooo_cpu[cpu].L1D.sim_access[cpu][i];
-            TOTAL_HIT += ooo_cpu[cpu].L1D.sim_hit[cpu][i];
-            TOTAL_MISS += ooo_cpu[cpu].L1D.sim_miss[cpu][i];
-            TOTAL_ENCLAVE_ACCESS += ooo_cpu[cpu].L1D.sim_enclave_access[cpu][i];
-            TOTAL_ENCLAVE_HIT += ooo_cpu[cpu].L1D.sim_enclave_hit[cpu][i];
-            TOTAL_ENCLAVE_MISS += ooo_cpu[cpu].L1D.sim_enclave_miss[cpu][i];
-        }
-
-        cout << "L1 ";
-        cout << " TOTAL     ACCESS: " << setw(10) << TOTAL_ACCESS << "  HIT: " << setw(10) << TOTAL_HIT << "  MISS: " << setw(10) << TOTAL_MISS << endl;
-
-        cout << "L1 ";
-        cout << " TOTAL   E-ACCESS: " << setw(10) << TOTAL_ENCLAVE_ACCESS << " EHIT: " << setw(10) << TOTAL_ENCLAVE_HIT << " EMISS: " << setw(10) << TOTAL_ENCLAVE_MISS << endl;
-    }
-#endif
 }
 
 void print_branch_stats()
@@ -658,7 +612,7 @@ void enable_deadlock_check(int i) {
 }
 
 
-// to removed the linknode from the lru from the lru doubly linked list belongs to the the evicted enclave physical page 
+// remove linknode from lru linked list, when enclave page is evicted 
 
 void invalidate_linknode(unordered_map<uint64_t, pair<uint64_t, ListNode *>>::iterator pr_enclave)
 {

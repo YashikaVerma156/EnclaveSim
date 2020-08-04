@@ -118,7 +118,7 @@ void CACHE::handle_fill()
                     writeback_packet.type = WRITEBACK;
                     writeback_packet.event_cycle = current_core_cycle[fill_cpu];
 #ifdef ENCLAVE
-                    writeback_packet.enclave_id = return_enclave_id(fill_cpu, writeback_packet.full_addr); // update packet with enclave_id @dixit
+                    writeback_packet.enclave_id = return_enclave_id(fill_cpu, writeback_packet.full_addr); 
 #endif
                     lower_level->add_wq(&writeback_packet);
                 }

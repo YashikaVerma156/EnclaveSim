@@ -232,7 +232,7 @@ void O3_CPU::read_from_trace(uint8_t is_enclave_aware_trace)
                 if (is_enclave_aware_trace) {
                     if (current_enclave_aware_instr.trusted_instruction_id == 100) {
                         
-                        // set the enclave to enclave init state
+                        // enable_enclave_mode();
                         enclave_mode[cpu] = 1;
 
                         if (stall_cycle[cpu] <= current_core_cycle[cpu]) {
