@@ -29,16 +29,16 @@ ${N_WARM}: number of instructions for warmup (10 million)
 ${N_SIM}:  number of instructinos for detailed simulation (50 million)
 ${TRACE_INFO}: 
   i) For Baseline config: 
-      ${TRACE_INFO}: {trace name} {400.perlbench-41B.champsimtrace.xz}
+      ${TRACE_INFO}: {trace name} {605.mcf_s-994B.champsimtrace.xz}
   ii) For EnclaveSim config with Enclave aware trace: 
       ${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes} 
   iii) For EnclaveSim config with Non-enclave aware trace: 
-      ${TRACE_INFO}: {trace name, trace type, number of encalve, start-point, end-point} {400.perlbench-41B.champsimtrace.xz no 1 20 35}
+      ${TRACE_INFO}: {trace name, trace type, number of encalve, start-point, end-point} {605.mcf_s-994B.champsimtrace.xz no 1 20 35}
       *here start-point and end-point is instruction number in million.
 
-Variant-1: $ ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 5 50 400.perlbench-41B.champsimtrace.xz
-Variant-2: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 example1.champsimtrace.xz yes 
-Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 400.perlbench-41B.champsimtrace.xz no 1 20 35
+Variant-1: $ ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 10 50 605.mcf_s-994B.champsimtrace.xz
+Variant-2: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 example1.champsimtrace.xz yes 
+Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mcf_s-994B.champsimtrace.xz no 1 10 35
  
 ```
 
@@ -50,15 +50,8 @@ Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 5 50 400.per
 
 # Run simulation [To re-generate EnclaveSim results]
 
-* For single-core results 
-
 ```
 $ ./run1core_baseline_cal.sh
-$ ./run1core_enclave_cal.sh
-```
-* For multi-core results 
-
-```
 $ ./run8core_baseline_cal.sh
 $ ./run8core_enclave_cal.sh
 ```
