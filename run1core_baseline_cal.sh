@@ -8,11 +8,9 @@ TRACE_DIR=~/DPC-traces
 
 mkdir -p results_${num_cores}core_${n_warm}_${n_sim}_baseline
 
-
 binary=(bimodal-no-no-no-no-lru-baseline-off-1core)
 
-
-traces=(623.xalancbmk_s-10B.champsimtrace.xz 605.mcf_s-994B.champsimtrace.xz 602.gcc_s-2226B.champsimtrace.xz 641.leela_s-1052B.champsimtrace.xz 648.exchange2_s-72B.champsimtrace.xz)
+traces=(623.xalancbmk_s-10B.champsimtrace.xz 605.mcf_s-994B.champsimtrace.xz 602.gcc_s-2226B.champsimtrace.xz 648.exchange2_s-72B.champsimtrace.xz)
 
 for ((j=0; j<5; j++))
 do 	

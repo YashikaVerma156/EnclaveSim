@@ -1,6 +1,7 @@
-replacement_policy=${1}
-configuration=${2}
-encryption_operation=${3}
-num_core=${4}
+configuration=${1}			 # enclave/baseline
+encryption_operation=${2}    # yes/no
+num_core=${3}				 # any integer number
 
-./build_champsim.sh bimodal no no no no ${replacement_policy} ${configuration} ${encryption_operation} ${num_core}
+./build_champsim.sh bimodal no no no no lru ${configuration} ${encryption_operation} ${num_core}
+
+

@@ -82,14 +82,14 @@ fi
 
 # Check for multi-core
 if [ "$NUM_CORE" -gt "1" ]; then
-    echo "Building multi-core ChampSim..."
+    echo "Building multi-core EnclaveSim..."
     sed -i.bak 's/\<NUM_CPUS 1\>/NUM_CPUS '${NUM_CORE}'/g' inc/champsim.h
 else
     if [ "$NUM_CORE" -lt "1" ]; then
         echo "Number of core: $NUM_CORE must be greater or equal than 1"
         exit 1
     else
-        echo "Building single-core ChampSim..."
+        echo "Building single-core EnclaveSim..."
     fi
 fi
 
@@ -143,12 +143,12 @@ make
 # Sanity check
 echo ""
 if [ ! -f bin/champsim ]; then
-    echo "${BOLD}ChampSim build FAILED!"
+    echo "${BOLD}EnclaveSim build FAILED!"
     echo ""
     exit 1
 fi
 
-echo "${BOLD}ChampSim is successfully built"
+echo "${BOLD}EnclaveSim is successfully built"
 echo "Branch Predictor: ${BRANCH}"
 echo "L1I Prefetcher: ${L1I_PREFETCHER}"
 echo "L1D Prefetcher: ${L1D_PREFETCHER}"

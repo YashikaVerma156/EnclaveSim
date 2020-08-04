@@ -1778,6 +1778,7 @@ void CACHE::increment_WQ_FULL(uint64_t address)
     WQ.FULL++;
 }
 
+// enclave id is assigned appropriately or not
 void CACHE::assert_enclave_id(PACKET *packet)
 {
     if (cache_type == IS_L1I or cache_type == IS_L1D or cache_type == IS_L2C or cache_type == IS_LLC)
@@ -1792,6 +1793,7 @@ void CACHE::assert_enclave_id(PACKET *packet)
     }
 }
 
+// enclave hit miss counts at various cache level
 void CACHE::update_enclave_hit_miss_stats(PACKET *packet, uint32_t cpu, bool is_hit)
 {
     if (packet->enclave_id != NUM_CPUS and (cache_type == IS_L1I or cache_type == IS_L1D or cache_type == IS_L2C or cache_type == IS_LLC))

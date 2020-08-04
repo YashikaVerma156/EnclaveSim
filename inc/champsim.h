@@ -36,7 +36,6 @@
 #endif
 
 
-
 // CPU
 #define NUM_CPUS 1
 #define CPU_FREQ 4000
@@ -75,9 +74,9 @@
 #define DRAM_SIZE (DRAM_CHANNELS*DRAM_RANKS*DRAM_BANKS*DRAM_ROWS*DRAM_ROW_SIZE/1024)  // Convert DRAM size in MBs  
 #define DRAM_PAGES ((DRAM_SIZE<<10)>>2)   // (4096 * 1024) / 4 => 1048576 Pages Per DIMM   
 
-// @champsim-enclave
+// Additional Parameter to support EnclaveSim
 #define ENCLAVE_SIZE 192  // 256 MB PRM Size
-#define ENCLAVE_PAGES ((ENCLAVE_SIZE<<10)>>2)   // (128 * 1024) / 4 => 49152 Pages for enclaves
+#define ENCLAVE_PAGES ((ENCLAVE_SIZE<<10)>>2)  
 #define NON_ENCLAVE_PAGES (DRAM_PAGES-ENCLAVE_PAGES)
 #define NON_ENCLAVE_SIZE (DRAM_SIZE-ENCLAVE_SIZE)
 #define ENCLAVE_TEARDOWN_LATENCY  12000
@@ -109,7 +108,7 @@ extern map <uint64_t, uint64_t> recent_page, unique_cl[NUM_CPUS];
 extern uint64_t previous_ppage, num_adjacent_page, num_cl[NUM_CPUS], allocated_pages, num_page[NUM_CPUS], minor_fault[NUM_CPUS], major_fault[NUM_CPUS];
 extern int enclave_mode[NUM_CPUS];
 
-// @champsim-enclave: newly added data structures
+// EnclaveSim: Newly added data structures
 class ListNode {
   public:
       uint64_t val;

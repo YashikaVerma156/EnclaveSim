@@ -526,7 +526,9 @@ int MEMORY_CONTROLLER::add_wq(PACKET *packet)
                 if (pr != page_table.end()) {
                     (pr->second).second = true;
                     assert_enclave_id(packet);
-                    counter1++;
+                    #ifdef ENCLAVE_DEBUG_PRINT
+                        counter1++;
+                    #endif
 
                 }
                 else {
@@ -534,7 +536,9 @@ int MEMORY_CONTROLLER::add_wq(PACKET *packet)
                 }
             }
             else {
-                counter2++;
+                #ifdef ENCLAVE_DEBUG_PRINT
+                    counter2++;
+                #endif
                 ;// cout << "ppage: " << ppage <<" is not found in the inverse page tabe" << " cpu: " <<packet->cpu << " enclave-mode: " << enclave_mode[packet->cpu] << " enclave-id: " <<packet->enclave_id << endl;
             }
             

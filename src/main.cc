@@ -26,14 +26,13 @@ queue<uint64_t> page_queue;
 map<uint64_t, uint64_t> recent_page, unique_cl[NUM_CPUS];
 uint64_t previous_ppage, num_adjacent_page, num_cl[NUM_CPUS], allocated_pages, num_page[NUM_CPUS], minor_fault[NUM_CPUS], major_fault[NUM_CPUS];
 
-// @EnclaveSim: newly added data structures
+// data structure to support Enclave simulations
 unordered_map<uint64_t, pair<uint64_t, bool>> page_table;
 unordered_map<uint64_t, uint64_t> inverse_table;
 ListNode *least_recently_used_page = NULL, *most_recently_used_page = NULL;
 unordered_map<uint64_t, pair<uint64_t, ListNode *>> enclave_page_map; // (va, {pa, link-node address})
 
 uint64_t non_enclave_allocated_pages = 0, enclave_allocated_pages = 0, num_adjacent_enclave_page = 0, num_adjacent_non_enclave_page = 0, previous_enclave_ppage = 0, previous_non_enclave_ppage = 0;
-
 uint64_t sizeofListNode = 0;
 
 bool is_deadlock_check_required[NUM_CPUS];
@@ -43,10 +42,15 @@ uint64_t enclave_minor_fault[NUM_CPUS], enclave_major_fault[NUM_CPUS], non_encla
 
 vector<vector<uint32_t>> start_point(NUM_CPUS);
 vector<vector<uint32_t>> end_point(NUM_CPUS);
-vector<vector<uint32_t>> lifetime(NUM_CPUS);
+vector<vector<uint32_t>> duration(NUM_CPUS);
+
 int current_enclave[NUM_CPUS];
 int max_enclave[NUM_CPUS];
-uint64_t counter1 = 0, counter2 = 0;
+
+#ifdef ENCLAVE_DEBUG_PRINT
+    uint64_t counter1 = 0, counter2 = 0;
+#endif
+
 //end
 
 using namespace std;
@@ -68,7 +72,6 @@ void record_roi_stats(uint32_t cpu, CACHE *cache)
 
 void print_roi_stats(uint32_t cpu, CACHE *cache)
 {
-
     uint64_t TOTAL_ACCESS = 0, TOTAL_HIT = 0, TOTAL_MISS = 0, TOTAL_ENCLAVE_ACCESS = 0, TOTAL_ENCLAVE_HIT = 0, TOTAL_ENCLAVE_MISS = 0;
 
     for (uint32_t i = 0; i < NUM_TYPES; i++)
@@ -155,6 +158,7 @@ void print_sim_stats(uint32_t cpu, CACHE *cache)
         TOTAL_ENCLAVE_HIT += cache->sim_enclave_hit[cpu][i];
         TOTAL_ENCLAVE_MISS += cache->sim_enclave_miss[cpu][i];
 #endif
+
     }
 
     cout << cache->NAME;
@@ -430,6 +434,7 @@ uint64_t rotr64(uint64_t n, unsigned int c)
 
 RANDOM champsim_rand(champsim_seed);
 
+// debugging functions: to print rob
 uint64_t print_rob(int cpu)
 {
 
@@ -453,10 +458,9 @@ uint64_t print_rob(int cpu)
     return 0;
 }
 
+// debugging functions: to print mshr's
 uint64_t print_cache_mshr(int i)
 {
-
-    uint full_address = 0;
 
     PACKET_QUEUE *queue;
     queue = &ooo_cpu[i].L1D.MSHR;
@@ -561,7 +565,8 @@ uint64_t print_cache_mshr(int i)
     return 0;
 }
 
-uint64_t print_block_status_in_cache(int i)
+// debugging functions: to print block status in cache
+void print_block_status_in_cache(int i)
 {
     uint64_t uid = ooo_cpu[i].ROB.entry[ooo_cpu[i].ROB.head].instr_id;
 
@@ -579,9 +584,9 @@ uint64_t print_block_status_in_cache(int i)
 
     full_address = full_address >> 6;
 
-    PACKET *packet;
+    PACKET *packet= new PACKET;
     packet->address = full_address;
-    packet->cpu = i;
+    packet->cpu = i;    
 
     if (ooo_cpu[i].L1D.check_hit(packet) != -1)
         cout << "Packet will hit at L1D";
@@ -599,6 +604,7 @@ uint64_t print_block_status_in_cache(int i)
         cout << "Packet will get miss at LL C";
 }
 
+// to disable deadlock check, after the enclave exit
 void disable_deadlock_check(int cpu) {
 
 #ifdef ENCLAVE_DEBUG_PRINT
@@ -612,6 +618,7 @@ void disable_deadlock_check(int cpu) {
     rob_tail[cpu] = ooo_cpu[cpu].ROB.tail;
 }
 
+// to ennable the deadlock check, after the rob get renewed after the enclave exit
 void enable_deadlock_check(int i) {
 
     // deadlock is already enabled
@@ -620,7 +627,7 @@ void enable_deadlock_check(int i) {
     else 
     {
         // when rob is not full
-        if ((ooo_cpu[i].ROB.head == rob_tail[i] % ROB_SIZE) && abs(rob_head[i] - rob_tail[i]) != 0) {
+        if ((ooo_cpu[i].ROB.head == (uint32_t)(rob_tail[i] % ROB_SIZE)) && abs(rob_head[i] - rob_tail[i]) != 0) {
             is_deadlock_check_required[i] = true;
             rob_head[i] = -1;
             rob_tail[i] = -1;
@@ -631,10 +638,10 @@ void enable_deadlock_check(int i) {
         }
         // when rob is full
         else if (abs(rob_head[i] - rob_tail[i]) == 0) {
-            if (ooo_cpu[i].ROB.head != rob_head[i]) {
+            if (ooo_cpu[i].ROB.head != (uint32_t)rob_head[i]) {
                 flag[i] = true;
             }
-            if ((ooo_cpu[i].ROB.head == (rob_tail[i] % ROB_SIZE))) {
+            if ((ooo_cpu[i].ROB.head == (uint32_t)(rob_tail[i] % ROB_SIZE))) {
                 if (flag[i] == true) {
                     is_deadlock_check_required[i] = true;
                     rob_head[i] = -1;
@@ -649,6 +656,9 @@ void enable_deadlock_check(int i) {
         }
     }
 }
+
+
+// to removed the linknode from the lru from the lru doubly linked list belongs to the the evicted enclave physical page 
 
 void invalidate_linknode(unordered_map<uint64_t, pair<uint64_t, ListNode *>>::iterator pr_enclave)
 {
@@ -710,6 +720,7 @@ void invalidate_linknode(unordered_map<uint64_t, pair<uint64_t, ListNode *>>::it
     enclave_allocated_pages--;
 }
 
+// to invalidate enclave physical page from the page tables and invalidates corresponding pages from the cache hierarchy
 void invalidate_page(unordered_map<uint64_t, pair<uint64_t, bool>>::iterator pr, uint32_t cpu)
 {
     uint64_t mapped_ppage = (pr->second).first;
@@ -747,13 +758,15 @@ void enclave_teardown(uint32_t cpu)
 
     int dirty_enclave_pages = 0, total_enclave_pages = 0;
 
+    // check for enclave pages belongs to the correponding enclaves
     for (uint64_t ppage = 1; ppage <= ENCLAVE_PAGES; ppage++)
     {
         unordered_map<uint64_t, uint64_t>::iterator ppage_check = inverse_table.find(ppage);
         if (ppage_check != inverse_table.end())
         {
             uint64_t vpage = ppage_check->second;
-            uint64_t cpu_id = vpage >> (int)(64 - log2(NUM_CPUS));
+            int shift_bit = 64 - log2(NUM_CPUS);
+            uint64_t cpu_id = vpage >> shift_bit;
             unordered_map<uint64_t, pair<uint64_t, bool>>::iterator pr = page_table.find(vpage);
 
             if (pr == page_table.end()) assert(0 && "Page Table inconsistency");
@@ -777,10 +790,10 @@ void enclave_teardown(uint32_t cpu)
             }
         }
     }
+
     disable_deadlock_check(cpu);
 
-    cout << "E-Pages: " << total_enclave_pages << " Dirty-pages:" << dirty_enclave_pages << endl << endl;
-
+    // cout << "E-Pages: " << total_enclave_pages << " Dirty-pages:" << dirty_enclave_pages << endl << endl;
     // cout << "E-Pages: " << total_enclave_pages << " Dirty-pages:" << dirty_enclave_pages << " Latency-Delay: " << stall_cycle[cpu] - current_core_cycle[cpu] << " rob head: " << rob_head[cpu] << " rob tail: " << rob_tail[cpu] << " occupancy: " << ooo_cpu[cpu].ROB.occupancy << endl << endl;
 
 }
@@ -802,7 +815,7 @@ void check_enclave_init(int cpu)
     // if the application reaches the checkpoint, set up the enclave
     if (enclave_mode[cpu] == 0 and current_instruction >= enclave_start_point and current_instruction < enclave_end_point) {
             
-        cout << endl << "Enclave INIT! " << " CPU:" << cpu << " Enclave-Number:" << enclave_number << " Current Intruction: " << current_instruction << " EENTRY POINT:" << enclave_start_point << " Current Cycle: " << current_core_cycle[cpu] << endl << endl;
+        // cout << endl << "Enclave INIT! " << " CPU:" << cpu << " Enclave-Number:" << enclave_number << " Current Intruction: " << current_instruction << " EENTRY POINT:" << enclave_start_point << " Current Cycle: " << current_core_cycle[cpu] << endl << endl;
 
         // update the stall cycle
         if (stall_cycle[cpu] <= current_core_cycle[cpu]) {
@@ -826,7 +839,6 @@ void check_enclave_exit(int cpu)
     if (enclave_mode[cpu] == 0) return; 
 
     int enclave_number = current_enclave[cpu];
-    int enclave_start_point = start_point[cpu][enclave_number];
     int enclave_end_point = end_point[cpu][enclave_number];
     int current_instruction = ooo_cpu[cpu].num_retired - ooo_cpu[cpu].begin_sim_instr;
 
@@ -867,16 +879,6 @@ void init_exit_assert(int cpu){
         assert(0 && "Enclave mode is on, but instructions are outside enclave range!");
     }
 
-}
-
-uint64_t lru_list_size() {
-    uint64_t size = 0;
-    ListNode *current = least_recently_used_page;
-    while(current) {
-        size++;
-        current = current->next;
-    }
-    return size;    
 }
 
 // returns enclave-id corresponding to the physical address.
@@ -1094,7 +1096,7 @@ uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t
 {
 
     // sanity checks
-
+    
     // init_exit_assert(cpu);
 
     if (enclave_page_map.size() != enclave_allocated_pages) {
@@ -1693,29 +1695,29 @@ int main(int argc, char **argv)
             }
             else
             {
+
                 is_trace = true;
 
                 if (!is_enclave_aware_trace[cpu_id]) {
+                    
                     int NUM_ENCLAVE = atoi(argv[++i]);
-                    for (int j = 0; j < NUM_ENCLAVE; j++)
-                    {
+
+                    for (int enclave_num = 0; enclave_num < NUM_ENCLAVE; enclave_num++) {
+                       
                         uint32_t current_start_point = (uint32_t)atoi(argv[++i]);
                         start_point[cpu_id].push_back(current_start_point);
-                    }
 
-                    for (int j = 0; j < NUM_ENCLAVE; j++)
-                    {
-                        uint32_t current_start_point = start_point[cpu_id][j];
-                        uint32_t life_time = (uint32_t)atoi(argv[++i]);
-                        lifetime[cpu_id].push_back(life_time);
-                        end_point[cpu_id].push_back(current_start_point + life_time);
+                        uint32_t current_end_point = (uint32_t)atoi(argv[++i]);
+                        end_point[cpu_id].push_back(current_end_point);
+                        
+                        duration[cpu_id].push_back(current_end_point - current_start_point);  
+
                     }
 
                     cout << "Num of Enclaves: " << NUM_ENCLAVE << endl;
 
-                    for (int enclave_number = 0; enclave_number < NUM_ENCLAVE; enclave_number++)
-                    {
-                        cout << "       " << "E-NO:" << enclave_number + 1 << " erange:(" << start_point[cpu_id][enclave_number] << "," << end_point[cpu_id][enclave_number] << "] lifetime: " << lifetime[cpu_id][enclave_number] << endl;
+                    for (int enclave_number = 0; enclave_number < NUM_ENCLAVE; enclave_number++) {
+                        cout << "       " << "E-NO:" << enclave_number + 1 << " erange:(" << start_point[cpu_id][enclave_number] << "," << end_point[cpu_id][enclave_number] << "] duration: " << duration[cpu_id][enclave_number] << endl;
                     }
 
                     cout << endl;
@@ -1728,7 +1730,7 @@ int main(int argc, char **argv)
                     {
                         start_point[cpu_id][j] *= 1000000;
                         end_point[cpu_id][j] *= 1000000;
-                        lifetime[cpu_id][j] *= 1000000;
+                        duration[cpu_id][j] *= 1000000;
                     }
                 }
                 
@@ -1945,10 +1947,9 @@ int main(int argc, char **argv)
             // cout << " stall_cycle: " << stall_cycle[i] << " current: " << current_core_cycle[i] << endl;
 
 #ifdef ENCLAVE
-        // starts enclave execution only after wamp-up completion
         if (is_enclave_aware_trace[i]) {
             if (enclave_mode[i] == -1) {
-                  cout << endl << "Enclave EXIT!" << " CPU:" << i << " ";
+                //   cout << endl << "Enclave EXIT!" << " CPU:" << i << " ";
                   enclave_teardown(i);
                   enclave_mode[i] = 0;  
             } 

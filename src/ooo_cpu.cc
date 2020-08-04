@@ -231,12 +231,22 @@ void O3_CPU::read_from_trace(uint8_t is_enclave_aware_trace)
                 // set enclave mode
                 if (is_enclave_aware_trace) {
                     if (current_enclave_aware_instr.trusted_instruction_id == 100) {
-                        cout << endl << "Enclave INIT! " << " CPU:" << cpu << endl;
+                        
+                        // set the enclave to enclave init state
                         enclave_mode[cpu] = 1;
+
+                        if (stall_cycle[cpu] <= current_core_cycle[cpu]) {
+                            stall_cycle[cpu] = current_core_cycle[cpu];
+                        }
+                        stall_cycle[cpu] += ENCLAVE_CONTEXT_SWITCH_LATENCY;
+                        // cout << endl << "Enclave INIT! " << " CPU:" << cpu << endl;
+                        
                     }
                     else if (current_enclave_aware_instr.trusted_instruction_id == 200) {
-                        // cout << "Disable Enclave Mode" << endl;
+                        // set the enclave to the enclave exit state
                         enclave_mode[cpu] = -1;
+
+                        // cout << "Disable Enclave Mode" << endl;
                     }
                 }
 
