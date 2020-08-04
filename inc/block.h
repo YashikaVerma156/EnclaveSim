@@ -46,7 +46,7 @@ class BLOCK {
         data = 0;
         cpu = 0;
         instr_id = 0;
-        enclave_id = -1; // @champsim-enclave
+        enclave_id = -1;
         lru = 0;
     };
 };
@@ -81,7 +81,7 @@ class PACKET {
         depth,
         signature,
         confidence,
-        enclave_id; // @champsim-enclave
+        enclave_id; 
 
     uint32_t pf_metadata;
 
@@ -162,7 +162,7 @@ class PACKET {
         ip = 0;
         event_cycle = UINT64_MAX;
     	cycle_enqueued = 0;
-        enclave_id = -1; // @champsim-enclave
+        enclave_id = -1;
 
     };
 };
@@ -339,7 +339,7 @@ class LSQ_ENTRY {
              physical_address,
              ip,
              event_cycle,
-             enclave_id; // @champsim-enclave
+             enclave_id;
 
     uint32_t rob_index, data_index, sq_index;
 
@@ -368,7 +368,7 @@ class LSQ_ENTRY {
         fetched = 0;
         asid[0] = UINT8_MAX;
         asid[1] = UINT8_MAX;
-        enclave_id = -1; // @champsim-enclave
+        enclave_id = -1;
 
 #if 0
         for (uint32_t i=0; i<ROB_SIZE; i++)

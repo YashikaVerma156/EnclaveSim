@@ -67,8 +67,14 @@ class enclave_aware_instr {
     // instruction pointer or PC (Program Counter)
     uint64_t ip;
 
-    // to check instruction is trusted or not
-    uint8_t trusted_instruction_id; // (id:100 for enclave-init, id:200 for enclave-end, id:0 for untrusted-intructions and id:1 for trusted instructions)
+    // to check instruction is trusted or not?
+    uint8_t trusted_instruction_id; 
+    /*{
+        id==100 --> enclave-init,
+        id==200 --> enclave-exit,
+        id==1   --> trusted-instruction,
+        id==0   --> untrusted-instruction. 
+    } */
 
     // branch info
     uint8_t is_branch;
@@ -220,7 +226,7 @@ class ooo_model_instr {
         execute_begin_cycle = 0;
         retired_cycle = 0;
         event_cycle = 0;
-        enclave_id = -1; // @champsim-enclave
+        enclave_id = -1; 
         is_branch = 0;
         is_memory = 0;
         branch_taken = 0;

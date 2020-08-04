@@ -225,8 +225,9 @@ void MEMORY_CONTROLLER::schedule(PACKET_QUEUE *queue)
             LATENCY = tRP + tRCD + tCAS;
 
 #ifdef ENCLAVE
+    // add encryption and decryption latency
     #if ENCRYPTION_OPERATION
-        // add encryption and decryption latency
+        // check if packet belongs to enclave request or not    
         if (queue->entry[oldest_index].enclave_id != NUM_CPUS) {
             if (queue->is_WQ) 
                 LATENCY += ENCLAVE_LLC_MISS_LATENCY;
@@ -430,8 +431,8 @@ void MEMORY_CONTROLLER::process(PACKET_QUEUE *queue)
 int MEMORY_CONTROLLER::add_rq(PACKET *packet)
 {
     
-#ifdef ENCLAVE
-        assert_enclave_id(packet);
+#ifdef ENCLAVE 
+    assert_enclave_id(packet);
 #endif
     // simply return read requests with dummy response before the warmup
     if (all_warmup_complete < NUM_CPUS) {
@@ -515,6 +516,9 @@ int MEMORY_CONTROLLER::add_wq(PACKET *packet)
         return -1;
 
 #ifdef ENCLAVE
+        
+        // Mark enclave-page dirty.
+
         uint64_t ppage = packet->full_addr >> LOG2_PAGE_SIZE;
         unordered_map <uint64_t, uint64_t>::iterator ppage_check = inverse_table.begin();
         if (ppage != 0) {
@@ -524,6 +528,7 @@ int MEMORY_CONTROLLER::add_wq(PACKET *packet)
                 unordered_map <uint64_t, pair <uint64_t, bool>>::iterator pr = page_table.begin();
                 pr = page_table.find(vpage);
                 if (pr != page_table.end()) {
+                    // mark the page to dirty
                     (pr->second).second = true;
                     assert_enclave_id(packet);
                     #ifdef ENCLAVE_DEBUG_PRINT

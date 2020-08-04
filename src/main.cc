@@ -1702,6 +1702,8 @@ int main(int argc, char **argv)
                     
                     int NUM_ENCLAVE = atoi(argv[++i]);
 
+                    cout << NUM_ENCLAVE << endl;
+                    
                     for (int enclave_num = 0; enclave_num < NUM_ENCLAVE; enclave_num++) {
                        
                         uint32_t current_start_point = (uint32_t)atoi(argv[++i]);

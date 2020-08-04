@@ -111,14 +111,13 @@ class CACHE : public MEMORY {
              roi_hit[NUM_CPUS][NUM_TYPES],
              roi_miss[NUM_CPUS][NUM_TYPES];
 
-    // @champsim-enclave
+    
     uint64_t sim_enclave_access[NUM_CPUS][NUM_TYPES],
              sim_enclave_hit[NUM_CPUS][NUM_TYPES],
              sim_enclave_miss[NUM_CPUS][NUM_TYPES],
              roi_enclave_access[NUM_CPUS][NUM_TYPES],
              roi_enclave_hit[NUM_CPUS][NUM_TYPES],
-             roi_enclave_miss[NUM_CPUS][NUM_TYPES];
-    //end 
+             roi_enclave_miss[NUM_CPUS][NUM_TYPES]; 
 
     uint64_t total_miss_latency;
     
@@ -151,14 +150,14 @@ class CACHE : public MEMORY {
                 roi_hit[i][j] = 0;
                 roi_miss[i][j] = 0;
                 
-                // @champsim-enclave
+                
                 sim_enclave_access[i][j] = 0;
                 sim_enclave_hit[i][j] = 0;
                 sim_enclave_miss[i][j] = 0;
                 roi_enclave_access[i][j] = 0;
                 roi_enclave_hit[i][j] = 0;
                 roi_enclave_miss[i][j] = 0;
-                // end
+                
             }
         }
 
@@ -240,9 +239,10 @@ class CACHE : public MEMORY {
              llc_find_victim(uint32_t cpu, uint64_t instr_id, uint32_t set, const BLOCK *current_set, uint64_t ip, uint64_t full_addr, uint32_t type),
              lru_victim(uint32_t cpu, uint64_t instr_id, uint32_t set, const BLOCK *current_set, uint64_t ip, uint64_t full_addr, uint32_t type);
 
-    void check_enclave_lifetime(uint32_t cpu); // @champsim-enclave
-    void update_enclave_hit_miss_stats(PACKET *packet, uint32_t cpu, bool is_hit); // @champsim-enclave
+    void check_enclave_lifetime(uint32_t cpu); 
+    void update_enclave_hit_miss_stats(PACKET *packet, uint32_t cpu, bool is_hit);
     void assert_enclave_id(PACKET *packet);
+    
 };
 
 #endif

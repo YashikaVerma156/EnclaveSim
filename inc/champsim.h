@@ -84,7 +84,6 @@
 #define ENCLAVE_MAJOR_PAGE_FAULT_LATENCY 40000
 #define ENCLAVE_MINOR_PAGE_FAULT_LATENCY 28000
 #define ENCLAVE_LLC_MISS_LATENCY 500
-// end
 
 using namespace std;
 
@@ -106,9 +105,8 @@ extern uint64_t current_core_cycle[NUM_CPUS],
 extern queue <uint64_t> page_queue;
 extern map <uint64_t, uint64_t> recent_page, unique_cl[NUM_CPUS];
 extern uint64_t previous_ppage, num_adjacent_page, num_cl[NUM_CPUS], allocated_pages, num_page[NUM_CPUS], minor_fault[NUM_CPUS], major_fault[NUM_CPUS];
-extern int enclave_mode[NUM_CPUS];
 
-// EnclaveSim: Newly added data structures
+// Doubly linked list to keep trace of LRU pages in EPC region
 class ListNode {
   public:
       uint64_t val;
@@ -129,7 +127,6 @@ extern uint64_t sizeofListNode;
 extern int enclave_mode[NUM_CPUS];
 extern uint64_t counter1, counter2;
 uint8_t return_enclave_id(uint32_t cpu, uint64_t physical_address);
-//end
 
 void print_stats();
 uint64_t rotl64 (uint64_t n, unsigned int c),
