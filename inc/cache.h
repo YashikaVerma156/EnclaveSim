@@ -205,7 +205,7 @@ class CACHE : public MEMORY {
          handle_writeback(),
          handle_read(),
          handle_prefetch();
-
+    void flush();
     void add_mshr(PACKET *packet),
          update_fill_cycle(),
          llc_initialize_replacement(),

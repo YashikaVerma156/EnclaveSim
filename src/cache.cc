@@ -232,6 +232,21 @@ void CACHE::handle_fill()
     }
 }
 
+void CACHE::flush()
+{
+    for(uint32_t set=0; set<NUM_SET; set++)
+    {
+        for(uint32_t way=0; way<NUM_WAY; way++)
+        {
+            if( block[set][way].valid)
+                //cout<<"Cache_type = "<<cache_type<<" Flushed\n";
+            block[set][way].valid = 0;
+
+        }
+    }
+}
+
+
 void CACHE::handle_writeback()
 {
     // handle write

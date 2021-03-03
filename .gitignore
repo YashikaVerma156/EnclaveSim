@@ -6,6 +6,9 @@ branch/branch_predictor.cc
 replacement/llc_replacement.cc
 
 inc/champsim.h.bak
+DPC-traces/
+scr_encryption_on.sh
+
 
 bin/
 obj/

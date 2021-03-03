@@ -679,12 +679,15 @@ void invalidate_page(unordered_map<uint64_t, pair<uint64_t, bool>>::iterator pr,
 {
     uint64_t mapped_ppage = (pr->second).first;
     uint64_t vpage = pr->first;
+    uint64_t high_bit_mask = rotr64(cpu, lg2(NUM_CPUS)), va_to_remove = vpage ^ high_bit_mask;
+ // invalidate corresponding vpage and ppage from the cache hierarchy
 
-    for (int i= 0; i<NUM_CPUS; i++) {
-        // invalidate corresponding vpage and ppage from the cache hierarchy
-        ooo_cpu[i].ITLB.invalidate_entry(vpage, cpu);
-        ooo_cpu[i].DTLB.invalidate_entry(vpage, cpu);
-        ooo_cpu[i].STLB.invalidate_entry(vpage, cpu);
+    ooo_cpu[cpu].ITLB.invalidate_entry(vpage xor high_bit_mask, cpu);
+    ooo_cpu[cpu].DTLB.invalidate_entry(vpage xor high_bit_mask, cpu);
+    ooo_cpu[cpu].STLB.invalidate_entry(vpage xor high_bit_mask, cpu);    
+
+    for (int i= 0; i<NUM_CPUS; i++) 
+    {
         for (uint32_t j = 0; j < BLOCK_SIZE; j++)
         {
             uint64_t cl_addr = (mapped_ppage << 6) | j;
@@ -768,8 +771,12 @@ void check_enclave_init(int cpu)
 
     // if the application reaches the checkpoint, set up the enclave
     if (enclave_mode[cpu] == 0 and current_instruction >= enclave_start_point and current_instruction < enclave_end_point) {
-            
-        // cout << endl << "Enclave INIT! " << " CPU:" << cpu << " Enclave-Number:" << enclave_number << " Current Intruction: " << current_instruction << " EENTRY POINT:" << enclave_start_point << " Current Cycle: " << current_core_cycle[cpu] << endl << endl;
+         
+	 ooo_cpu[cpu].ITLB.flush();
+         ooo_cpu[cpu].DTLB.flush();
+         ooo_cpu[cpu].STLB.flush();
+         
+	 cout << endl << "Enclave INIT! " << " CPU:" << cpu << " Enclave-Number:" << enclave_number << " Current Intruction: " << current_instruction << " EENTRY POINT:" << enclave_start_point << " Current Cycle: " << current_core_cycle[cpu] << endl << endl;
 
         // update the stall cycle
         if (stall_cycle[cpu] <= current_core_cycle[cpu]) {
@@ -933,6 +940,7 @@ uint64_t va_to_pa_baseline(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_
             page_queue.pop();
             page_queue.push(vpage);
 
+	    //This code is wrong, page to be invalidated can be of different core
             // invalidate corresponding vpage and ppage from the cache hierarchy
             ooo_cpu[cpu].ITLB.invalidate_entry(NRU_vpage, cpu);
             ooo_cpu[cpu].DTLB.invalidate_entry(NRU_vpage, cpu);
@@ -957,7 +965,7 @@ uint64_t va_to_pa_baseline(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_
             else
             {
                 random_ppage = champsim_rand.draw_rand();
-                fragmented = 1;
+		    fragmented = 1;
             }
 
             // encoding cpu number
@@ -1214,11 +1222,18 @@ uint64_t va_to_pa_enclave(uint32_t cpu, uint64_t instr_id, uint64_t va, uint64_t
             cout << ppage_check->second << " ppage: " << ppage_check->first << dec << endl; });
 
             // invalidate corresponding vpage and ppage from the cache hierarchy
-            for (int i = 0; i<NUM_CPUS; i++) {
+         //This code is wrong, page to be invalidated can be of different core
+  
+	    ooo_cpu[cpu].ITLB.invalidate_entry(old_vpage, cpu);
+            ooo_cpu[cpu].DTLB.invalidate_entry(old_vpage, cpu);
+            ooo_cpu[cpu].STLB.invalidate_entry(old_vpage, cpu);
+
+	   
+	    for (int i = 0; i<NUM_CPUS; i++) {
                 // invalidate corresponding vpage and ppage from the cache hierarchy
-                ooo_cpu[i].ITLB.invalidate_entry(old_vpage, cpu);
-                ooo_cpu[i].DTLB.invalidate_entry(old_vpage, cpu);
-                ooo_cpu[i].STLB.invalidate_entry(old_vpage, cpu);
+               // ooo_cpu[i].ITLB.invalidate_entry(old_vpage, cpu);
+              //  ooo_cpu[i].DTLB.invalidate_entry(old_vpage, cpu);
+               // ooo_cpu[i].STLB.invalidate_entry(old_vpage, cpu);
                 for (uint32_t j = 0; j < BLOCK_SIZE; j++)
                 {
                     uint64_t cl_addr = (mapped_ppage << 6) | j;
@@ -1894,7 +1909,10 @@ int main(int argc, char **argv)
         elapsed_minute -= elapsed_hour * 60;
         elapsed_second -= (elapsed_hour * 3600 + elapsed_minute * 60);
 
-        for (int i = 0; i < NUM_CPUS; i++)
+	// choosing core turn randomly
+        int i = champsim_rand.draw_rand() % NUM_CPUS;
+
+        for (int j = 0; j < NUM_CPUS; j++)
         {
             // proceed one cycle
             current_core_cycle[i]++;
@@ -2048,7 +2066,24 @@ int main(int argc, char **argv)
             }
 
             if (all_simulation_complete == NUM_CPUS)
-                run_simulation = 0;
+	    {        
+		run_simulation = 0;
+		#ifdef ENCLAVE
+                        for(int k = 0; k < NUM_CPUS; k++)
+                        {
+                                if(enclave_mode[k]==1)
+                                {
+                                          check_enclave_exit(k);
+                                }
+                        }
+                #endif
+	    }
+
+	     //Incrementing the variable core turn variable randomly.
+            i++;
+            if(i == NUM_CPUS)
+                i = 0;
+
         }
 
         // TODO: should it be backward?
