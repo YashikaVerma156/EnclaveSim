@@ -27,16 +27,19 @@
     * Run command syntax. 
     ``` $ ./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $trace_path ```
     * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-baseline-off-1core -warmup_instructions 1000000 -simulation_instructions 1000000 -traces 605.mcf_s-994B.champsimtrace.xz ```
-    * *``` $ ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 10 50 605.mcf_s-994B.champsimtrace.xz ```
+    * **``` $ ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 10 50 605.mcf_s-994B.champsimtrace.xz ```
   * If ```enclave``` configuration is used while binary generation.
     * Enclave unaware trace: <br/>
       ```${TRACE_INFO}: {trace name, trace type, number of enclave, start-point, end-point} {605.mcf_s-994B.champsimtrace.xz no 1 20 35}``` <br/>
       [NOTE] start-point and end-point is instruction number (in millions).
       * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces 605.mcf_s-994B.champsimtrace.xz no 1 10 35 ```
+      * ** ``` $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mcf_s-994B.champsimtrace.xz no 1 10 35 ```
     * Enclave aware trace: <br/>
       ```${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes}```
       * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces example1.champsimtrace.xz yes ```
-        
+      * ** ``` $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 example1.champsimtrace.xz yes ```   
+     <br/>
+    ** Refer to run1core.sh to write your own script and run any customized configuration for a single core simulation.       
 <!--      
 ``` 
 Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
@@ -66,7 +69,7 @@ $ ./run1core_baseline_cal.sh
 $ ./run8core_baseline_cal.sh
 $ ./run8core_enclave_cal.sh
 ```
-* Refer to run8core_enclave_cal.sh to write your own script and run any customized configuration.
+* Refer to run8core_enclave_cal.sh to write your own script and run any customized configuration for 8-core simulation.
 
 
 
