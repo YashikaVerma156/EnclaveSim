@@ -11,10 +11,7 @@
   * Configuration : baseline(non-enclave execution)/enclave(execution with enclave)
   * Encryption operation : on/off
   * Number of cores
-* Build command syntax.
-``` 
-$ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPERATION} $NUM_CORE} 
-```
+* Build command syntax. ``` $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPERATION} $NUM_CORE} ```
 * Build command example. ```$ ./build_enclavesim.sh bimodal no no no no lru enclave on 1```
 * Generated binary. ```bin/bimodal-no-no-no-no-lru-enclave-on-1core```
 
@@ -26,27 +23,23 @@ $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} 
   * Trace information
 * Trace information 
   * If ```baseline``` configuration is used while binary generation. <br/>
-    Then ```${TRACE_INFO}: {trace_path/trace_name} {605.mcf_s-994B.champsimtrace.xz}```
-    * Run command syntax: 
-      ``` 
+    ```${TRACE_INFO}: {trace_path/trace_name} {605.mcf_s-994B.champsimtrace.xz}```
+    * Run command syntax: ``` 
       ./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $trace_path 
       ```
-    * Run command example: 
-      ```
+    * Run command example:```
       ./bin/bimodal-no-no-no-no-lru-baseline-off-1core -warmup_instructions 1000000 -simulation_instructions 1000000 -traces 605.mcf_s-994B.champsimtrace.xz 
       ```
   * If ```enclave``` configuration is used while binary generation.
-    * Enclave unaware trace: 
-      ```${TRACE_INFO}: {trace name, trace type, number of enclave, start-point, end-point} {605.mcf_s-994B.champsimtrace.xz no 1 20 35}```
+    * Enclave unaware trace: <br/>
+      ```${TRACE_INFO}: {trace name, trace type, number of enclave, start-point, end-point} {605.mcf_s-994B.champsimtrace.xz no 1 20 35}``` <br/>
       [NOTE] start-point and end-point is instruction number (in millions).
-      * Run command example: 
-        ``` 
+      * Run command example: ``` 
         ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces 605.mcf_s-994B.champsimtrace.xz no 1 10 35 
         ```
-    * Enclave aware trace:
+    * Enclave aware trace: <br/>
       ```${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes}```
-      * Run command example: 
-        ``` 
+      * Run command example: ``` 
         ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces example1.champsimtrace.xz yes 
         ```
         
