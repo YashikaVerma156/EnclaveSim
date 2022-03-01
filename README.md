@@ -4,17 +4,15 @@
 
 ## Build & binary generation
 * Command-line arguments.
-  * Branch_Predictor
+  * Branch predictor
   * L1I, L1D, L2C, LLC prefetcher
-  * LLC Replacement policy
-  * Configuration : Baseline(non-enclave execution)/Enclave(execution with enclave)
+  * LLC replacement policy
+  * Configuration : baseline(non-enclave execution)/enclave(execution with enclave)
   * Encryption operation : on/off
   * Number of cores
-```
-$ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPER} $NUM_CORE}
-$ ./build_enclavesim.sh bimodal no no no no lru enclave on 8
-```
-* Generated binary is present in ```/bin```.
+* Build command format: ```$ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPER} $NUM_CORE} ```
+* Example build command ```$ ./build_enclavesim.sh bimodal no no no no lru enclave on 1 ```
+* Generated binary: ```/bin/bimodal-no-no-no-no-lru-enclave-on-1core```.
 
 ## Run simulation
 
