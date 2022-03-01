@@ -25,13 +25,23 @@ $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} 
   * Number of simulation instructions (in millions) 
   * Trace information
 * Trace information 
-  * If ```baseline``` configuration is used while binary generation. Then
-          ```${TRACE_INFO}: {trace_path/trace_name}```
-    * Run command syntax: ``` ./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $trace_path ```
-    * Run command example: ```./bin/${binary} -warmup_instructions $1000000 -simulation_instructions $1000000 ${option} -traces 605.mcf_s-994B.champsimtrace.xz ```
-  * If ```enclave``` configuration is used while binary generation. Then
-      
-
+  * If ```baseline``` configuration is used while binary generation. Then ```${TRACE_INFO}: {trace_path/trace_name} {605.mcf_s-994B.champsimtrace.xz}```
+    * Run command syntax: 
+      ``` 
+      ./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $trace_path 
+      ```
+    * Run command example: 
+      ```
+      ./bin/bimodal-no-no-no-no-lru-baseline-off-1core -warmup_instructions 1000000 -simulation_instructions 1000000 -traces 605.mcf_s-994B.champsimtrace.xz 
+      ```
+  * If ```enclave``` configuration is used while binary generation.
+    * Enclave unaware trace: 
+      ```${TRACE_INFO}: {trace name, trace type, number of enclave, start-point, end-point} {605.mcf_s-994B.champsimtrace.xz no 1 20 35}```
+      [NOTE] start-point and end-point is instruction number (in millions).
+      * Run command example: 
+        ``` 
+        ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces 605.mcf_s-994B.champsimtrace.xz no 1 10 35 
+        ```
 
 
 ``` 
