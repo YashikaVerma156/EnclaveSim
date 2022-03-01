@@ -4,7 +4,7 @@
   <br/>
 <br/>
   <b>Citation: </b>
-If you use this code as part of your evaluation in your research/development, please be sure to cite the HOST 22 paper for proper acknowledgment.
+If you use this code as part of your evaluation in your research/development, please be sure to cite the HOST'22 paper for proper acknowledgment.
 </p>
 
 ### 1. Build & Run
