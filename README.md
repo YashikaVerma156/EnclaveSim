@@ -10,13 +10,12 @@
   * Configuration : baseline(non-enclave execution)/enclave(execution with enclave)
   * Encryption operation : on/off
   * Number of cores
-* Build command.
-``` $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPERATION} $NUM_CORE} 
+* Build command syntax.
+``` 
+$ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPERATION} $NUM_CORE} 
 ```
-* An example build command 
-``` $ ./build_enclavesim.sh bimodal no no no no lru enclave on 1 ```
-* Generated binary. 
-``` bin/bimodal-no-no-no-no-lru-enclave-on-1core ```
+* An example build command. ``` $ ./build_enclavesim.sh bimodal no no no no lru enclave on 1 ```
+* Generated binary. ``` bin/bimodal-no-no-no-no-lru-enclave-on-1core ```
 
 ## Run simulation
 
