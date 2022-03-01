@@ -1,8 +1,8 @@
 <p align="center">
   <h1 align="center"> EnclaveSim (IEEE HOST'22) </h1>
-  <p> A trace-based micro-architectural simulator to support enclave simulations. It is build on top of an existing simulator ChampSim.</p>
+  <p> A trace-based micro-architectural simulator to support enclave simulations. It is built on top of an existing simulator, ChampSim.</p>
 
-# Compile
+## Compile
 
 * How to build it?
 
@@ -17,7 +17,7 @@ $ ./build_enclavesim.sh bimodal no no no no lru enclave on 8
 
 ```
 
-# Run simulation
+## Run simulation
 
 ``` 
 Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
@@ -40,7 +40,7 @@ Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mc
  
 ```
 
-# Run simulation [To re-generate EnclaveSim results]
+## Run simulation [To re-generate EnclaveSim results]
 
 ```
 $ ./run1core_baseline_cal.sh
@@ -52,7 +52,7 @@ $ ./run8core_enclave_cal.sh
 
 
 
-# PIN Tool [Supports Enclave-aware trace generation]
+## PIN Tool [Supports Enclave-aware trace generation]
  
 * Download: https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.13-98189-g60a6ef199-gcc-linux.tar.gz
 
