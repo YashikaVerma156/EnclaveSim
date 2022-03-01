@@ -1,6 +1,8 @@
 <p align="center">
   <h1 align="center"> EnclaveSim (IEEE HOST'22) </h1>
-  <p> A trace-based micro-architectural simulator to support enclave simulations. It is built on top of an existing simulator, ChampSim.</p>
+  <p> A trace-based micro-architectural simulator to support enclave simulations. It is built on top of an existing simulator, ChampSim.
+</p>
+Citation: If you use this code as part of your evaluation in your research/development, please be sure to cite the HOST 22 paper for proper acknowledgment.
 
 ### 1. Build & Run
 #### 1.1 Binary generation
