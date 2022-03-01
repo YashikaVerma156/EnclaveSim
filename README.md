@@ -25,7 +25,8 @@ $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} 
   * Number of simulation instructions (in millions) 
   * Trace information
 * Trace information 
-  * If ```baseline``` configuration is used while binary generation. Then ```${TRACE_INFO}: {trace_path/trace_name} {605.mcf_s-994B.champsimtrace.xz}```
+  * If ```baseline``` configuration is used while binary generation. 
+    Then ```${TRACE_INFO}: {trace_path/trace_name} {605.mcf_s-994B.champsimtrace.xz}```
     * Run command syntax: 
       ``` 
       ./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $trace_path 
