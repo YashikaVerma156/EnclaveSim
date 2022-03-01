@@ -36,7 +36,7 @@
       ```${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes}```
       * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces example1.champsimtrace.xz yes ```
         
-        
+  <!--      
 ``` 
 Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
 
@@ -55,8 +55,8 @@ ${TRACE_INFO}:
 Variant-1: $ ./run1core.sh bimodal-no-no-no-no-lru-baseline-off-1core 10 50 605.mcf_s-994B.champsimtrace.xz
 Variant-2: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 example1.champsimtrace.xz yes 
 Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mcf_s-994B.champsimtrace.xz no 1 10 35
- 
-```
+ ```
+-->
 
 #### 1.3 Run simulation [To re-generate EnclaveSim results]
 
