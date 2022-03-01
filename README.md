@@ -2,7 +2,8 @@
   <h1 align="center"> EnclaveSim (IEEE HOST'22) </h1>
   <p> A trace-based micro-architectural simulator to support enclave simulations. It is built on top of an existing simulator, ChampSim.</p>
 
-## Build & binary generation
+### 1. Build & Run
+##### 1.1 Binary generation
 * Command-line arguments.
   * Branch predictor
   * L1I, L1D, L2C, LLC prefetcher
@@ -17,7 +18,7 @@ $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} 
 * An example build command. ``` $ ./build_enclavesim.sh bimodal no no no no lru enclave on 1 ```
 * Generated binary. ``` bin/bimodal-no-no-no-no-lru-enclave-on-1core ```
 
-## Run simulation
+##### 1.2 Run simulation
 
 ``` 
 Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
