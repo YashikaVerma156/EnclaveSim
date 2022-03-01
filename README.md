@@ -99,3 +99,9 @@ $ ./run8core_enclave_cal.sh
 $ pin -t ${share_object_tracerfile_path} -- ${application_path} > /dev/null
 $ pin -t /home/dixit/EnclaveSim/tracer/obj-intel64/champsim_tracer.so -- ../example/example1 >/dev/null
 ```
+### 3. Result generation
+* Result for each simulation can be stored in ``` results_*/*.txt ``` as that of ``` run1core.sh ```
+* The result file stores enclave and non-enclave stats (like cache hit/misses, DRAM pages allocated, etc.) for a simulation.
+
+### 4. Concluding notes
+* EnclaveSim is not limited to its present functionality and its modular design be easily extended for any enclave-related extensions.
