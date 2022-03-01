@@ -41,7 +41,7 @@ Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mc
  
 ```
 
-## Run simulation [To re-generate EnclaveSim results]
+#### 1.3 Run simulation [To re-generate EnclaveSim results]
 
 ```
 $ ./run1core_baseline_cal.sh
@@ -53,7 +53,7 @@ $ ./run8core_enclave_cal.sh
 
 
 
-## PIN Tool [Supports Enclave-aware trace generation]
+### 2. PIN Tool [Supports Enclave-aware trace generation]
  
 * Download: https://software.intel.com/sites/landingpage/pintool/downloads/pin-3.13-98189-g60a6ef199-gcc-linux.tar.gz
 
