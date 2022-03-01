@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center"> EnclaveSim </h1>
+  <h1 align="center"> EnclaveSim (IEEE HOST'22) </h1>
   <p> A trace-based micro-architectural simulator to support enclave simulations. It is build on top of an existing simulator ChampSim.</p>
 
 # Compile
