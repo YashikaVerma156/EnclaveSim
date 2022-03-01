@@ -33,7 +33,7 @@
       ```${TRACE_INFO}: {trace name, trace type, number of enclave, start-point, end-point} {605.mcf_s-994B.champsimtrace.xz no 1 20 35}``` <br/>
       [NOTE] start-point and end-point is instruction number (in millions).
       * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces 605.mcf_s-994B.champsimtrace.xz no 1 10 35 ```
-      * ** ``` $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mcf_s-994B.champsimtrace.xz no 1 10 35 ```
+      * ** ```$ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mcf_s-994B.champsimtrace.xz no 1 10 35 ```
     * Enclave aware trace: <br/>
       ```${TRACE_INFO}: {trace name, trace type} {example1.champsimtrace.xz yes}```
       * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces example1.champsimtrace.xz yes ```
@@ -69,7 +69,7 @@ $ ./run1core_baseline_cal.sh
 $ ./run8core_baseline_cal.sh
 $ ./run8core_enclave_cal.sh
 ```
-* Refer to run8core_enclave_cal.sh to write your own script and run any customized configuration for 8-core simulation.
+* Refer to ```run8core_enclave_cal.sh``` to write your own script and run any customized configuration for 8-core simulation.
 
 
 
