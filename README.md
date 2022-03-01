@@ -19,18 +19,17 @@ $ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} 
 * Generated binary. ``` bin/bimodal-no-no-no-no-lru-enclave-on-1core ```
 
 #### 1.2 Run simulation
-* Run command syntax.
- ``` ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO] ``` 
 * Command-line arguments. 
   * Binary generated in build process
   * Number of warmup instructions (in millions)
   * Number of simulation instructions (in millions) 
   * Trace information
-    i) ```baseline``` configuration used while binary generation
-          ${TRACE_INFO}: {trace_path/trace_name}
-          Run command syntax: 
+* Trace information 
+  * If ```baseline``` configuration is used while binary generation. Then
+          ```${TRACE_INFO}: {trace_path/trace_name}```
+   - Run command syntax: 
           ``` ./bin/${binary} -warmup_instructions ${n_warm}000000 -simulation_instructions ${n_sim}000000 ${option} -traces $trace_path ```
-          Run command example:
+   - Run command example:
           ``` ./bin/${binary} -warmup_instructions $1000000 -simulation_instructions $1000000 ${option} -traces 605.mcf_s-994B.champsimtrace.xz ```
     ii) ```enclave``` configuration used while binary generation
       
