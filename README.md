@@ -11,7 +11,9 @@
   * Encryption operation : on/off
   * Number of cores
 * Build command format: 
-```$ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPERATION} $NUM_CORE} ```
+```
+$ ./build_enclavesim.sh ${BRANCH_PREDICTOR} ${L1I_PREFETCHER} ${L1D_PREFETCHER} ${L2C_PREFETCHER} ${LLC_PREFETCHER} ${LLC_REPLACEMENT} ${CONFIG} ${ENCRYPT_OPERATION} $NUM_CORE} 
+```
 * An example build command ```$ ./build_enclavesim.sh bimodal no no no no lru enclave on 1 ```
 * Generated binary ```bin/bimodal-no-no-no-no-lru-enclave-on-1core```.
 
