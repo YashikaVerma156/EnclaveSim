@@ -44,7 +44,7 @@ If you use this code as part of your evaluation in your research/development, pl
       * Run command example: ``` $ ./bin/bimodal-no-no-no-no-lru-enclave-on-1core -warmup_instructions 10000000 -simulation_instructions 50000000 ${option} -traces example1.champsimtrace.xz yes ```
       * ** ``` $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 example1.champsimtrace.xz yes ```   
      <br/>
-    ** Refer to run1core.sh to write your own script and run any customized configuration for a single core simulation.       
+    ** Refer to run1core.sh to write your own script and run any customized configuration for single core simulation.       
 <!--      
 ``` 
 Usage: ./run1core.sh [BINARY] [N_WARM] [N_SIM] [TRACE_INFO]
