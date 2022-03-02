@@ -109,4 +109,4 @@ $ pin -t /home/dixit/EnclaveSim/tracer/obj-intel64/champsim_tracer.so -- ../exam
 * The result file stores enclave and non-enclave stats (like cache hit/misses, DRAM pages allocated, etc.) for a simulation.
 
 ### 4. Concluding notes
-* EnclaveSim is not limited to its present functionality and its modular design be easily extended for any enclave-related extensions.
+* EnclaveSim is not limited to its present functionality and its modular design can be easily extended for any enclave-related extensions.
