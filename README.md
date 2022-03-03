@@ -70,11 +70,11 @@ Variant-3: $ ./run1core.sh bimodal-no-no-no-no-lru-enclave-on-1core 10 50 605.mc
 #### 1.3 Run simulation [To re-generate EnclaveSim results]
 
 ```
-$ ./run1core_baseline_cal.sh
-$ ./run8core_baseline_cal.sh
-$ ./run8core_enclave_cal.sh
+$ ./run1core_baseline.sh
+$ ./run8core_baseline.sh
+$ ./run8core_enclave.sh
 ```
-* Refer to ```run8core_enclave_cal.sh``` to write your own script and run any customized configuration for 8-core simulation.
+* Refer to ```run8core_enclave.sh``` to write your own script and run any customized configuration for 8-core simulation.
 
 
 
